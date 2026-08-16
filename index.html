@@ -1,1 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#08090c" />
+  <title>NOTFLICKS</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="screen-page">
+  <div id="emptyState" class="empty-state" hidden>
+    <div class="brand brand-large">NOTFLICKS</div>
+    <h1>No films loaded</h1>
+    <p>Open the production setup screen and add the films for this shoot.</p>
+    <a class="button primary" href="setup.html">Open setup</a>
+  </div>
 
+  <main id="screen" class="screen" aria-live="polite">
+    <header class="screen-header">
+      <div class="brand" aria-label="Notflicks">NOTFLICKS</div>
+      <div class="header-label">FILM SELECTOR</div>
+      <div id="lockBadge" class="lock-badge" hidden>LOCKED</div>
+    </header>
+
+    <section class="hero" aria-label="Current film">
+      <div id="heroBackdrop" class="hero-backdrop"></div>
+      <div class="hero-vignette"></div>
+      <div class="hero-content">
+        <div class="eyebrow">TONIGHT'S SELECTION</div>
+        <h1 id="heroTitle">NOTFLICKS</h1>
+        <div class="meta-line">
+          <span id="heroYear"></span>
+          <span id="heroRating"></span>
+        </div>
+        <p id="heroOverview"></p>
+      </div>
+    </section>
+
+    <section class="chooser" aria-label="Film carousel">
+      <div class="chooser-heading">
+        <h2>Choose a film</h2>
+        <span id="chooserHint">Scroll, swipe, drag or use ← →</span>
+      </div>
+      <div id="carousel" class="carousel" tabindex="0">
+        <div id="track" class="carousel-track"></div>
+        <div class="focus-frame" aria-hidden="true"></div>
+      </div>
+      <div class="film-readout">
+        <div id="selectedTitle" class="selected-title"></div>
+        <div id="selectedYear" class="selected-year"></div>
+      </div>
+    </section>
+
+    <div id="spinBanner" class="spin-banner" hidden>RANDOMISING</div>
+  </main>
+
+  <div id="cameraControls" class="camera-controls" aria-label="Production controls">
+    <button id="prevButton" title="Previous film" aria-label="Previous film">‹</button>
+    <button id="spinButton" class="spin-control" title="Random spin" aria-label="Random spin">RANDOM</button>
+    <button id="nextButton" title="Next film" aria-label="Next film">›</button>
+    <button id="lockButton" title="Lock selection">LOCK</button>
+    <button id="fullscreenButton" title="Fullscreen">FULLSCREEN</button>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
