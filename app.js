@@ -1,217 +1,46 @@
-const STORAGE = { films: 'notflicks.films.v1', settings: 'notflicks.settings.v1', selected: 'notflicks.selected.v1' };
-const $ = (id) => document.getElementById(id);
-const films = (() => { try { return JSON.parse(localStorage.getItem(STORAGE.films)) || []; } catch { return []; } })();
-const settings = (() => { try { return { showControls:false, sound:true, avoidSame:true, ...(JSON.parse(localStorage.getItem(STORAGE.settings)) || {}) }; } catch { return { showControls:false, sound:true, avoidSame:true }; } })();
-const forceControls = new URLSearchParams(location.search).get('controls') === '1';
-const REPEATS = 11;
-const MIDDLE_REPEAT = Math.floor(REPEATS / 2);
-
-let filmIndex = Math.max(0, Math.min(films.length - 1, Number(localStorage.getItem(STORAGE.selected)) || 0));
-let virtualIndex = films.length ? MIDDLE_REPEAT * films.length + filmIndex : 0;
-let locked = false;
-let spinning = false;
-let dragging = false;
-let dragStartX = 0;
-let dragStartTime = 0;
-let wheelBurst = 0;
-let wheelDirection = 1;
-let wheelTimer = 0;
-let audioCtx;
-
-const track = $('track');
-const carousel = $('carousel');
-const controls = $('cameraControls');
-
-if (!films.length) {
-  $('screen').hidden = true;
-  $('emptyState').hidden = false;
-} else {
-  controls.classList.toggle('visible', !!settings.showControls || forceControls);
-  buildCarousel();
-  updateTrack(0);
-  updateFilmDetails();
-  preloadArtwork();
-}
-
-function escapeHtml(value='') {
-  const node = document.createElement('span');
-  node.textContent = String(value);
-  return node.innerHTML;
-}
-function mod(value, length) { return ((value % length) + length) % length; }
-function buildCarousel() {
-  const cards = [];
-  for (let repeat = 0; repeat < REPEATS; repeat++) {
-    films.forEach((film, i) => {
-      const vIndex = repeat * films.length + i;
-      cards.push(`<div class="poster-card" data-film-index="${i}" data-virtual-index="${vIndex}" aria-label="${escapeHtml(film.title)}">
-        ${film.poster ? `<img src="${escapeHtml(film.poster)}" draggable="false" alt="${escapeHtml(film.title)} poster" />` : `<div class="poster-placeholder">${escapeHtml(film.title)}</div>`}
-      </div>`);
-    });
-  }
-  track.innerHTML = cards.join('');
-  track.addEventListener('click', e => {
-    const card = e.target.closest('.poster-card');
-    if (!card || locked || spinning) return;
-    virtualIndex = Number(card.dataset.virtualIndex);
-    filmIndex = Number(card.dataset.filmIndex);
-    commitSelection(280, true);
-    setTimeout(recenter, 300);
-  });
-}
-function preloadArtwork() {
-  films.forEach(f => [f.poster, f.backdrop].filter(Boolean).forEach(src => { const img = new Image(); img.src = src; }));
-}
-function cardMetrics() {
-  const card = track.querySelector('.poster-card');
-  if (!card) return { width: 170, gap: 18 };
-  const style = getComputedStyle(track);
-  return { width: card.getBoundingClientRect().width, gap: parseFloat(style.columnGap || style.gap) || 18 };
-}
-function updateTrack(duration = 0) {
-  const { width, gap } = cardMetrics();
-  track.style.transition = duration > 0 ? `transform ${duration}ms cubic-bezier(.2,.8,.2,1)` : 'none';
-  track.style.transform = `translate3d(${-(virtualIndex * (width + gap) + width / 2)}px,-50%,0)`;
-  track.querySelectorAll('.poster-card.is-selected').forEach(el => el.classList.remove('is-selected'));
-  track.querySelector(`.poster-card[data-virtual-index="${virtualIndex}"]`)?.classList.add('is-selected');
-}
-function commitSelection(duration = 260, withTick = true) {
-  filmIndex = mod(virtualIndex, films.length);
-  localStorage.setItem(STORAGE.selected, filmIndex);
-  updateTrack(duration);
-  updateFilmDetails();
-  if (withTick) tick();
-}
-function recenter() {
-  if (!films.length || spinning) return;
-  virtualIndex = MIDDLE_REPEAT * films.length + filmIndex;
-  updateTrack(0);
-}
-function updateFilmDetails() {
-  const film = films[filmIndex];
-  $('heroTitle').textContent = film.title || 'Untitled';
-  $('heroYear').textContent = film.year || '';
-  $('heroRating').textContent = film.rating ? `★ ${film.rating}` : '';
-  $('heroOverview').textContent = film.overview || '';
-  $('selectedTitle').textContent = film.title || 'Untitled';
-  $('selectedYear').textContent = film.year || '';
-  const bg = film.backdrop || film.poster || '';
-  $('heroBackdrop').style.backgroundImage = bg
-    ? `url("${String(bg).replace(/"/g, '%22')}")`
-    : 'radial-gradient(circle at 65% 30%, rgba(47,156,255,.22), transparent 33%), linear-gradient(135deg,#071522,#02050a)';
-}
-function tick() {
-  if (!settings.sound) return;
-  try {
-    audioCtx ??= new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'square';
-    osc.frequency.value = 860 + Math.random() * 120;
-    gain.gain.setValueAtTime(.05, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .028);
-    osc.connect(gain).connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + .032);
-  } catch {}
-}
-function move(delta) {
-  if (locked || spinning || !films.length) return;
-  virtualIndex += delta;
-  commitSelection(230, true);
-  setTimeout(recenter, 250);
-}
-function toggleLock() {
-  locked = !locked;
-  $('lockBadge').hidden = !locked;
-  $('lockButton').textContent = locked ? 'UNLOCK' : 'LOCK';
-}
-function randomTarget() {
-  if (films.length < 2) return filmIndex;
-  let target = Math.floor(Math.random() * films.length);
-  if (settings.avoidSame !== false) while (target === filmIndex) target = Math.floor(Math.random() * films.length);
-  return target;
-}
-async function spin() {
-  if (locked || spinning || films.length < 2) return;
-  spinning = true;
-  $('spinBanner').hidden = false;
-  virtualIndex = MIDDLE_REPEAT * films.length + filmIndex;
-  updateTrack(0);
-
-  const target = randomTarget();
-  const cycles = 2 + Math.floor(Math.random() * 3);
-  const deltaToTarget = mod(target - filmIndex, films.length) || films.length;
-  const totalSteps = cycles * films.length + deltaToTarget;
-
-  for (let step = 0; step < totalSteps; step++) {
-    const progress = step / Math.max(1, totalSteps - 1);
-    const delay = 34 + Math.pow(progress, 3.15) * 280;
-    const transition = Math.max(24, Math.min(125, delay * .72));
-    virtualIndex += 1;
-    filmIndex = mod(virtualIndex, films.length);
-    localStorage.setItem(STORAGE.selected, filmIndex);
-    updateTrack(transition);
-    updateFilmDetails();
-    tick();
-    await sleep(delay);
-  }
-
-  filmIndex = target;
-  localStorage.setItem(STORAGE.selected, filmIndex);
-  await sleep(90);
-  tick();
-  spinning = false;
-  $('spinBanner').hidden = true;
-  recenter();
-}
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-carousel?.addEventListener('wheel', (event) => {
-  if (locked || spinning) return;
-  event.preventDefault();
-  const amount = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
-  wheelDirection = amount >= 0 ? 1 : -1;
-  wheelBurst += Math.abs(amount);
-  clearTimeout(wheelTimer);
-  wheelTimer = setTimeout(() => {
-    if (wheelBurst > 360) spin();
-    else if (wheelBurst > 18) move(wheelDirection);
-    wheelBurst = 0;
-  }, 95);
-}, { passive: false });
-
-carousel?.addEventListener('pointerdown', e => {
-  if (locked || spinning) return;
-  dragging = true;
-  dragStartX = e.clientX;
-  dragStartTime = performance.now();
-  carousel.setPointerCapture?.(e.pointerId);
-});
-carousel?.addEventListener('pointerup', e => {
-  if (!dragging || locked || spinning) return;
-  dragging = false;
-  const dx = e.clientX - dragStartX;
-  const dt = Math.max(1, performance.now() - dragStartTime);
-  const velocity = Math.abs(dx / dt);
-  if (velocity > 1.25 || Math.abs(dx) > 260) spin();
-  else if (Math.abs(dx) > 40) move(dx < 0 ? 1 : -1);
-});
-carousel?.addEventListener('pointercancel', () => dragging = false);
-
-window.addEventListener('keydown', event => {
-  if (event.key === 'ArrowLeft') { event.preventDefault(); move(-1); }
-  if (event.key === 'ArrowRight') { event.preventDefault(); move(1); }
-  if (event.code === 'Space') { event.preventDefault(); spin(); }
-  if (event.key.toLowerCase() === 'l') toggleLock();
-  if (event.key.toLowerCase() === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
-  if (event.shiftKey && event.key.toLowerCase() === 'a') location.href = 'setup.html';
-});
-$('prevButton')?.addEventListener('click', () => move(-1));
-$('nextButton')?.addEventListener('click', () => move(1));
-$('spinButton')?.addEventListener('click', spin);
-$('lockButton')?.addEventListener('click', toggleLock);
-$('fullscreenButton')?.addEventListener('click', () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.());
-window.addEventListener('resize', () => films.length && updateTrack(0));
-
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
+const STORAGE={films:'notflicks.films.v1',settings:'notflicks.settings.v1',selected:'notflicks.selected.v1'};
+const $=id=>document.getElementById(id);
+const setupView=$('setupView'),screenView=$('screenView'),library=$('library'),titleInput=$('titleInput'),resolveStatus=$('resolveStatus'),manualDialog=$('manualDialog'),carousel=$('carousel'),track=$('track');
+let films=loadJSON(STORAGE.films,[]),settings={sound:true,avoidSame:true,...loadJSON(STORAGE.settings,{})},editingId=null,previewMode=true,locked=false,spinning=false,dragging=false,dragStartX=0,dragStartTime=0,wheelBurst=0,wheelDirection=1,wheelTimer=0,audioCtx=null,filmIndex=0,virtualIndex=0;
+const REPEATS=13,MIDDLE_REPEAT=Math.floor(REPEATS/2);
+filmIndex=clampIndex(Number(localStorage.getItem(STORAGE.selected))||0);
+function loadJSON(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}}
+function clampIndex(v){if(!films.length)return 0;return Math.max(0,Math.min(films.length-1,Number(v)||0))}
+function uid(){return crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random()}`}
+function escapeHtml(value=''){const n=document.createElement('span');n.textContent=String(value);return n.innerHTML}
+function save(){localStorage.setItem(STORAGE.films,JSON.stringify(films));settings.sound=$('soundToggle').checked;settings.avoidSame=$('avoidSameToggle').checked;localStorage.setItem(STORAGE.settings,JSON.stringify(settings));filmIndex=clampIndex(filmIndex);renderLibrary()}
+function parseLine(raw){const text=raw.trim(),m=text.match(/^(.*?)(?:\s*\((\d{4})\)|\s+(\d{4}))?$/);return{title:(m?.[1]||text).trim(),year:m?.[2]||m?.[3]||''}}
+function cleanTitle(v=''){return v.toLowerCase().replace(/\s+/g,' ').trim()}
+function inferredYear(text=''){const m=String(text).match(/\b(?:18|19|20)\d{2}\b/);return m?m[0]:''}
+function scoreWikiPage(page,item){const title=cleanTitle(page.title||''),wanted=cleanTitle(item.title),extract=cleanTitle(page.extract||'');let score=0;if(title===wanted)score+=24;if(title.startsWith(wanted))score+=16;if(title.includes(wanted))score+=8;if(title.includes('(film')||title.includes('(movie'))score+=12;if(extract.includes(' film')||extract.includes(' movie'))score+=8;if(page.original?.source||page.thumbnail?.source)score+=10;if(item.year&&(title.includes(item.year)||extract.includes(item.year)))score+=18;if(title.includes('disambiguation'))score-=30;return score}
+async function findWikipediaFilm(item){const url=new URL('https://en.wikipedia.org/w/api.php');[['action','query'],['generator','search'],['gsrsearch',`${item.title}${item.year?` ${item.year}`:''} film`],['gsrnamespace','0'],['gsrlimit','6'],['prop','pageimages|extracts'],['piprop','thumbnail|original'],['pithumbsize','1000'],['pilicense','any'],['exintro','1'],['explaintext','1'],['exsentences','4'],['format','json'],['formatversion','2'],['origin','*']].forEach(([k,v])=>url.searchParams.set(k,v));const response=await fetch(url);if(!response.ok)throw new Error(`Wikipedia ${response.status}`);const data=await response.json(),pages=data.query?.pages||[];if(!pages.length)return null;const best=pages.map(page=>({page,score:scoreWikiPage(page,item)})).sort((a,b)=>b.score-a.score)[0]?.page;if(!best)return null;const poster=best.original?.source||best.thumbnail?.source||'';return{id:uid(),source:'wikipedia',wikipediaTitle:best.title||'',title:item.title,year:item.year||inferredYear(best.extract||''),poster,backdrop:poster,overview:best.extract||''}}
+async function resolveFilms(){const items=titleInput.value.split(/\r?\n/).map(parseLine).filter(x=>x.title);if(!items.length){resolveStatus.textContent='Enter at least one film title.';return}$('resolveButton').disabled=true;let artworkFound=0;for(let i=0;i<items.length;i++){const item=items[i];resolveStatus.textContent=`Finding ${i+1} of ${items.length}: ${item.title}`;try{const match=await findWikipediaFilm(item);if(match){films.push(match);if(match.poster)artworkFound++}else films.push({id:uid(),source:'manual',title:item.title,year:item.year,poster:'',backdrop:'',overview:''})}catch(error){console.warn('Artwork lookup failed:',error);films.push({id:uid(),source:'manual',title:item.title,year:item.year,poster:'',backdrop:'',overview:''})}}titleInput.value='';save();resolveStatus.textContent=`Added ${items.length} film${items.length===1?'':'s'} · artwork found for ${artworkFound}.`;$('resolveButton').disabled=false}
+function sourceLabel(film){if(film.source==='wikipedia')return film.poster?'WIKIPEDIA ART':'WIKIPEDIA MATCH · NO ART';return film.poster?'CUSTOM ART':'NO ARTWORK'}
+function googleImagesUrl(film){return`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(`${film.title}${film.year?` ${film.year}`:''} movie poster`)}`}
+function renderLibrary(){$('filmCountPill').textContent=`${films.length} FILM${films.length===1?'':'S'}`;$('libraryEmpty').hidden=films.length>0;library.innerHTML=films.map((film,index)=>`<article class="film-row" data-id="${escapeHtml(film.id)}">${film.poster?`<img src="${escapeHtml(film.poster)}" alt=""/>`:`<div class="poster-placeholder library-poster">NO ART</div>`}<div><h3>${escapeHtml(film.title||'Untitled')}</h3><div class="row-meta">${escapeHtml(film.year||'Year unknown')} · ${sourceLabel(film)}</div></div><div class="row-actions"><button data-action="google">GOOGLE</button><button data-action="edit">EDIT</button><button data-action="up" ${index===0?'disabled':''}>↑</button><button data-action="down" ${index===films.length-1?'disabled':''}>↓</button><button data-action="remove">×</button></div></article>`).join('')}
+function openManualDialog(film=null){editingId=film?.id||null;$('manualDialogTitle').textContent=film?'Edit film':'Add film manually';$('manualSave').textContent=film?'Save changes':'Add film';$('manualTitle').value=film?.title||'';$('manualYear').value=film?.year||'';$('manualPoster').value=film?.poster||'';$('manualBackdrop').value=film?.backdrop||'';$('manualOverview').value=film?.overview||'';manualDialog.showModal()}
+function showScreen(asPreview){previewMode=!!asPreview;save();setupView.hidden=true;screenView.hidden=false;$('cameraControls').classList.toggle('production-hidden',!previewMode);$('screenEmpty').hidden=films.length>0;if(!films.length)return;filmIndex=clampIndex(filmIndex);virtualIndex=MIDDLE_REPEAT*films.length+filmIndex;buildCarousel();updateTrack(0);updateFilmDetails();preloadArtwork();carousel.focus({preventScroll:true});location.hash=previewMode?'preview':'screen';if(!previewMode&&!document.fullscreenElement)document.documentElement.requestFullscreen?.().catch(()=>{})}
+function showSetup(){spinning=false;locked=false;$('lockBadge').hidden=true;$('lockButton').textContent='LOCK';screenView.hidden=true;setupView.hidden=false;if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});location.hash='setup'}
+function buildCarousel(){if(!films.length){track.innerHTML='';return}const cards=[];for(let repeat=0;repeat<REPEATS;repeat++)films.forEach((film,index)=>{const v=repeat*films.length+index;cards.push(`<div class="poster-card" data-film-index="${index}" data-virtual-index="${v}">${film.poster?`<img src="${escapeHtml(film.poster)}" draggable="false" alt="${escapeHtml(film.title)} poster"/>`:`<div class="poster-placeholder">${escapeHtml(film.title)}</div>`}</div>`)});track.innerHTML=cards.join('')}
+function preloadArtwork(){films.forEach(f=>[f.poster,f.backdrop].filter(Boolean).forEach(src=>{const i=new Image();i.src=src}))}
+function cardMetrics(){const card=track.querySelector('.poster-card');if(!card)return{width:170,gap:18};const style=getComputedStyle(track);return{width:card.getBoundingClientRect().width,gap:parseFloat(style.columnGap||style.gap)||18}}
+function updateTrack(duration=0){if(!films.length)return;const{width,gap}=cardMetrics();track.style.transition=duration>0?`transform ${duration}ms cubic-bezier(.2,.8,.2,1)`:'none';track.style.transform=`translate3d(${-(virtualIndex*(width+gap)+width/2)}px,-50%,0)`;track.querySelectorAll('.poster-card.is-selected').forEach(el=>el.classList.remove('is-selected'));track.querySelector(`.poster-card[data-virtual-index="${virtualIndex}"]`)?.classList.add('is-selected')}
+function mod(v,l){return((v%l)+l)%l}
+function updateFilmDetails(){if(!films.length)return;const film=films[filmIndex];$('heroTitle').textContent=film.title||'Untitled';$('heroYear').textContent=film.year||'';$('heroOverview').textContent=film.overview||'';$('selectedTitle').textContent=film.title||'Untitled';$('selectedYear').textContent=film.year||'';const bg=film.backdrop||film.poster||'';$('heroBackdrop').style.backgroundImage=bg?`url("${String(bg).replace(/"/g,'%22')}")`:'radial-gradient(circle at 65% 30%, rgba(32,184,255,.23), transparent 33%), linear-gradient(135deg,#071522,#02050a)'}
+function commitSelection(duration=240,withTick=true){if(!films.length)return;filmIndex=mod(virtualIndex,films.length);localStorage.setItem(STORAGE.selected,String(filmIndex));updateTrack(duration);updateFilmDetails();if(withTick)tick()}
+function recenter(){if(!films.length||spinning)return;virtualIndex=MIDDLE_REPEAT*films.length+filmIndex;updateTrack(0)}
+function move(delta){if(locked||spinning||!films.length)return;virtualIndex+=delta;commitSelection(220,true);setTimeout(recenter,240)}
+function randomTarget(){if(films.length<2)return filmIndex;let target=Math.floor(Math.random()*films.length);if(settings.avoidSame!==false)while(target===filmIndex)target=Math.floor(Math.random()*films.length);return target}
+async function spin(){if(locked||spinning||films.length<2)return;spinning=true;$('spinBanner').hidden=false;virtualIndex=MIDDLE_REPEAT*films.length+filmIndex;updateTrack(0);const target=randomTarget(),cycles=3+Math.floor(Math.random()*3),deltaToTarget=mod(target-filmIndex,films.length)||films.length,totalSteps=cycles*films.length+deltaToTarget;for(let step=0;step<totalSteps;step++){const progress=step/Math.max(1,totalSteps-1),delay=30+Math.pow(progress,3.2)*270,transition=Math.max(22,Math.min(120,delay*.7));virtualIndex++;filmIndex=mod(virtualIndex,films.length);localStorage.setItem(STORAGE.selected,String(filmIndex));updateTrack(transition);updateFilmDetails();tick();await new Promise(r=>setTimeout(r,delay))}filmIndex=target;localStorage.setItem(STORAGE.selected,String(filmIndex));spinning=false;$('spinBanner').hidden=true;recenter()}
+function tick(){if(!settings.sound)return;try{audioCtx??=new(window.AudioContext||window.webkitAudioContext)();const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.type='square';osc.frequency.value=870+Math.random()*100;gain.gain.setValueAtTime(.045,audioCtx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.028);osc.connect(gain).connect(audioCtx.destination);osc.start();osc.stop(audioCtx.currentTime+.032)}catch{}}
+function toggleLock(){locked=!locked;$('lockBadge').hidden=!locked;$('lockButton').textContent=locked?'UNLOCK':'LOCK'}
+library.addEventListener('click',event=>{const button=event.target.closest('button[data-action]'),row=event.target.closest('.film-row');if(!button||!row)return;const index=films.findIndex(f=>f.id===row.dataset.id);if(index<0)return;const film=films[index],action=button.dataset.action;if(action==='google')return window.open(googleImagesUrl(film),'_blank','noopener,noreferrer');if(action==='edit')return openManualDialog(film);if(action==='remove')films.splice(index,1);if(action==='up'&&index>0)[films[index-1],films[index]]=[films[index],films[index-1]];if(action==='down'&&index<films.length-1)[films[index+1],films[index]]=[films[index],films[index+1]];save()});
+track.addEventListener('click',event=>{const card=event.target.closest('.poster-card');if(!card||locked||spinning)return;virtualIndex=Number(card.dataset.virtualIndex);filmIndex=Number(card.dataset.filmIndex);commitSelection(280,true);setTimeout(recenter,300)});
+carousel.addEventListener('wheel',event=>{if(locked||spinning)return;event.preventDefault();const amount=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;wheelDirection=amount>=0?1:-1;wheelBurst+=Math.abs(amount);clearTimeout(wheelTimer);wheelTimer=setTimeout(()=>{if(wheelBurst>330)spin();else if(wheelBurst>16)move(wheelDirection);wheelBurst=0},90)},{passive:false});
+carousel.addEventListener('pointerdown',event=>{if(locked||spinning)return;dragging=true;dragStartX=event.clientX;dragStartTime=performance.now();carousel.setPointerCapture?.(event.pointerId)});
+carousel.addEventListener('pointerup',event=>{if(!dragging||locked||spinning)return;dragging=false;const dx=event.clientX-dragStartX,dt=Math.max(1,performance.now()-dragStartTime),velocity=Math.abs(dx/dt);if(velocity>1.2||Math.abs(dx)>250)spin();else if(Math.abs(dx)>38)move(dx<0?1:-1)});carousel.addEventListener('pointercancel',()=>dragging=false);
+$('resolveButton').addEventListener('click',resolveFilms);$('addManualButton').addEventListener('click',()=>openManualDialog());$('shuffleButton').addEventListener('click',()=>{for(let i=films.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[films[i],films[j]]=[films[j],films[i]]}filmIndex=0;save()});$('clearButton').addEventListener('click',()=>{if(!films.length||confirm('Remove every film from NOTFLICKS?')){films=[];filmIndex=0;save()}});$('soundToggle').addEventListener('change',save);$('avoidSameToggle').addEventListener('change',save);$('previewButton').addEventListener('click',()=>showScreen(true));$('launchButton').addEventListener('click',()=>showScreen(false));$('backButton').addEventListener('click',showSetup);$('emptyBackButton').addEventListener('click',showSetup);$('prevButton').addEventListener('click',()=>move(-1));$('nextButton').addEventListener('click',()=>move(1));$('spinButton').addEventListener('click',spin);$('lockButton').addEventListener('click',toggleLock);$('fullscreenButton').addEventListener('click',()=>document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.());
+$('manualForm').addEventListener('submit',event=>{if(event.submitter?.value==='cancel'){editingId=null;return}event.preventDefault();const title=$('manualTitle').value.trim();if(!title)return;const values={title,year:$('manualYear').value.trim(),poster:$('manualPoster').value.trim(),backdrop:$('manualBackdrop').value.trim(),overview:$('manualOverview').value.trim()};if(editingId){const index=films.findIndex(f=>f.id===editingId);if(index>=0)films[index]={...films[index],...values,source:values.poster?'custom':films[index].source}}else films.push({id:uid(),source:values.poster?'custom':'manual',...values});editingId=null;$('manualForm').reset();manualDialog.close();save()});
+window.addEventListener('keydown',event=>{if(screenView.hidden)return;if(event.key==='ArrowLeft'){event.preventDefault();move(-1)}if(event.key==='ArrowRight'){event.preventDefault();move(1)}if(event.code==='Space'){event.preventDefault();spin()}if(event.key.toLowerCase()==='l')toggleLock();if(event.key.toLowerCase()==='f')document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.();if(event.shiftKey&&event.key.toLowerCase()==='a')showSetup()});window.addEventListener('resize',()=>{if(!screenView.hidden&&films.length)updateTrack(0)});
+if('serviceWorker'in navigator)navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(reg=>reg.unregister())).catch(()=>{});if('caches'in window)caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key)))).catch(()=>{});
+$('soundToggle').checked=settings.sound!==false;$('avoidSameToggle').checked=settings.avoidSame!==false;renderLibrary();if(location.hash==='#screen'&&films.length)showScreen(false);else showSetup();
