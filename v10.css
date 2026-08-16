@@ -1,0 +1,101 @@
+/* v10: whole-interface Play Now push + piece-built NOTFLICKS ident */
+
+/* The underlying live interface is the object moving toward camera. */
+#screenRoot{transform:scale(1);transform-origin:50% 45vh}
+#screenRoot.play-camera-push{animation:v10InterfacePush 1.65s cubic-bezier(.18,.72,.2,1) forwards;will-change:transform}
+@keyframes v10InterfacePush{0%{transform:scale(1)}100%{transform:scale(1.15)}}
+
+/* Keep the playback overlay transparent while the real UI is still visible. */
+.play-sequence{background:transparent}
+.play-artwork{display:none!important}
+.play-sequence.interface-phase .play-blackout{animation:v10InterfaceBlackout 1.48s .04s ease forwards!important}
+.play-sequence.black-phase .play-blackout,
+.play-sequence.logo-phase .play-blackout,
+.play-sequence.ads-phase .play-blackout{opacity:1}
+@keyframes v10InterfaceBlackout{
+  0%{opacity:0}
+  62%{opacity:.62}
+  82%{opacity:.96}
+  92%,100%{opacity:1}
+}
+
+/*
+  Logo animation master coordinate system: 2172 x 724.
+  The three supplied assets are positioned in that coordinate system, then the
+  actual full notflicks.png is used as the final alignment-lock frame.
+*/
+.play-logo-build{
+  position:absolute;z-index:5;left:50%;top:50%;
+  width:min(920px,82vw);aspect-ratio:2172/724;
+  transform:translate(-50%,-50%);opacity:0;pointer-events:none;
+}
+.play-logo-build img{position:absolute;display:block;user-select:none;-webkit-user-drag:none}
+
+/* Wordmark fitted to the master reference frame. */
+.v10-logo-wordmark{
+  left:2.393%;top:2.347%;width:95.449%;height:95.55%;
+  object-fit:fill;opacity:0;
+}
+
+/* Horizon asset is deliberately repositioned/scaled from its source canvas so
+   its finished arc sits in the same place as the master full logo. */
+.v10-logo-horizon-mask{
+  position:absolute;left:17.28%;top:39.59%;width:65.33%;height:60.69%;
+  overflow:hidden;clip-path:inset(0 100% 0 0);
+}
+.v10-logo-horizon{inset:0;width:100%;height:100%;object-fit:fill}
+
+/* Play asset keeps its own square source canvas; these percentages align its
+   visible triangle to the O in the master reference. */
+.v10-logo-play{
+  left:26.48%;top:40.25%;width:6.55%;height:auto;opacity:0;
+  transform-origin:50% 50%;
+}
+
+/* Exact completed reference. The three pieces resolve into this frame before
+   the complete mark fades away, removing any sub-pixel browser discrepancy. */
+.v10-logo-master{inset:0;width:100%;height:100%;object-fit:fill;opacity:0}
+
+.play-sequence.logo-phase .play-logo-build{opacity:1;animation:v10LogoBuildOut 2.72s linear forwards}
+.play-sequence.logo-phase .v10-logo-wordmark{animation:v10WordmarkBeat 2.72s linear forwards}
+.play-sequence.logo-phase .v10-logo-horizon-mask{animation:v10HorizonSwipe 2.72s cubic-bezier(.2,.75,.18,1) forwards}
+.play-sequence.logo-phase .v10-logo-play{animation:v10PlayFlash 2.72s linear forwards}
+.play-sequence.logo-phase .v10-logo-master{animation:v10MasterResolve 2.72s linear forwards}
+
+/* Word NOTFLICKS is present immediately when the ident begins. */
+@keyframes v10WordmarkBeat{
+  0%,66%{opacity:1}
+  70%,100%{opacity:0}
+}
+/* Horizon wipes in from left, then remains fully revealed until master lock. */
+@keyframes v10HorizonSwipe{
+  0%,13%{clip-path:inset(0 100% 0 0)}
+  42%,68%{clip-path:inset(0 0 0 0)}
+  72%,100%{clip-path:inset(0 0 0 0)}
+}
+/* Play icon appears after the horizon, flashes brightly, then hands off to the
+   exact completed master frame. */
+@keyframes v10PlayFlash{
+  0%,43%{opacity:0;filter:brightness(.8);transform:scale(.96)}
+  47%{opacity:1;filter:brightness(1);transform:scale(1)}
+  54%{opacity:1;filter:brightness(4.2) drop-shadow(0 0 26px rgba(75,205,255,.95));transform:scale(1.08)}
+  59%{opacity:.22;filter:brightness(5);transform:scale(1.02)}
+  63%{opacity:1;filter:brightness(2.5) drop-shadow(0 0 20px rgba(75,205,255,.8));transform:scale(1.04)}
+  68%{opacity:1;filter:brightness(1);transform:scale(1)}
+  72%,100%{opacity:0;transform:scale(1)}
+}
+/* The actual full logo takes over for the completed beat, guaranteeing exact
+   finished placement/scale, then the whole mark fades to black. */
+@keyframes v10MasterResolve{
+  0%,67%{opacity:0}
+  70%,79%{opacity:1}
+  100%{opacity:0}
+}
+@keyframes v10LogoBuildOut{
+  0%,79%{opacity:1}
+  100%{opacity:0}
+}
+
+@media(max-width:760px){
+  .play-logo-build{width:min(960px,94vw)}
+}
