@@ -45,12 +45,8 @@
 
       <div class="panel">
         <h2>Artwork lookup</h2>
-        <label class="field-label" for="tokenInput">TMDB API Read Access Token</label>
-        <div class="token-row">
-          <input id="tokenInput" type="password" autocomplete="off" placeholder="Paste your TMDB bearer token" />
-          <button id="showTokenButton" class="small-button" type="button">SHOW</button>
-        </div>
-        <p class="help-text">Stored only in this browser. It is never committed to GitHub.</p>
+        <p class="help-text"><strong>No account, API key or payment is required.</strong> NOTFLICKS searches Wikipedia for the film and uses the associated poster/lead artwork where available.</p>
+        <p class="help-text">If an automatic match has no usable artwork, use the <strong>GOOGLE</strong> button beside that film to open a Google Images search, then use <strong>EDIT</strong> to paste the image URL you want.</p>
         <div class="divider"></div>
         <label class="switch-row">
           <input id="showControlsToggle" type="checkbox" />
@@ -82,7 +78,7 @@
 
   <dialog id="manualDialog" class="manual-dialog">
     <form method="dialog" id="manualForm">
-      <h2>Add film manually</h2>
+      <h2 id="manualDialogTitle">Add film manually</h2>
       <label>Title<input id="manualTitle" required /></label>
       <label>Year<input id="manualYear" inputmode="numeric" /></label>
       <label>Poster image URL<input id="manualPoster" type="url" /></label>
