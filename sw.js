@@ -1,4 +1,4 @@
-const CACHE = 'notflicks-shell-v2';
+const CACHE = 'notflicks-shell-v3';
 const APP_SHELL = ['./', './index.html', './setup.html', './styles.css', './app.js', './setup.js', './assets/notflicks-logo.svg'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())));
