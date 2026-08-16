@@ -1,0 +1,9 @@
+/* v20: unresolved artwork review + black launch placeholders */
+.needs-web-art-row{border-color:rgba(255,181,72,.46)!important;box-shadow:inset 0 0 0 1px rgba(255,181,72,.06)}
+.needs-web-art-chip{color:#ffd18b!important;background:rgba(255,174,54,.1)!important;border-color:rgba(255,190,88,.34)!important}
+.row-actions button[data-action="choose-web-art"]{border-color:rgba(255,190,88,.48);background:rgba(255,174,54,.09);color:#ffe2ad}
+#unresolvedFilterButton.active{border-color:rgba(255,190,88,.55);background:rgba(255,174,54,.12);color:#ffe0a6}
+.poster-card.unresolved-art,.category-card.unresolved-art{background:#000!important;filter:none}
+.unresolved-black{width:100%;height:100%;background:#000!important;display:block}
+.hero-backdrop.unresolved-art{background:#000!important;transform:none}
+.hero-backdrop.unresolved-art::after{background:linear-gradient(180deg,rgba(0,0,0,0),#01040a 100%)!important}
