@@ -1,8 +1,8 @@
-/* v12: robust batch entry; supports real new lines, literal \n, literal /n, and semicolons. No-year titles default to the most popular film version. */
+/* v12: robust batch entry; supports real new lines, literal \n, literal /n, /n plus spaces, and semicolons. No-year titles default to the most popular film version. */
 function parseBatchFilmInput(raw){
   const normalised=String(raw||'')
     .replace(/\r/g,'')
-    .replace(/(?:\\n|\/n)/gi,'\n');
+    .replace(/(?:\\n|\/n)[ \t]*/gi,'\n');
   let parts=normalised.split('\n');
   // Also allow a quick semicolon-separated paste when there are no line breaks.
   if(parts.length===1&&parts[0].includes(';'))parts=parts[0].split(';');
