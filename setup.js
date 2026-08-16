@@ -37,7 +37,11 @@ function save() {
   render();
 }
 function uid() { return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`; }
-function escapeHtml(value='') { return value.replace(/[&<>'\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','\"':'&quot;'}[c])); }
+function escapeHtml(value='') {
+  const node = document.createElement('span');
+  node.textContent = String(value);
+  return node.innerHTML;
+}
 function posterUrl(path) { return path ? `https://image.tmdb.org/t/p/w500${path}` : ''; }
 function backdropUrl(path) { return path ? `https://image.tmdb.org/t/p/w1280${path}` : ''; }
 function parseLine(raw) {
@@ -119,19 +123,36 @@ library.addEventListener('click', (event) => {
 
 $('resolveButton').addEventListener('click', resolveFilms);
 $('showTokenButton').addEventListener('click', () => {
-  const showing = tokenInput.type === 'text'; tokenInput.type = showing ? 'password' : 'text';
+  const showing = tokenInput.type === 'text';
+  tokenInput.type = showing ? 'password' : 'text';
   $('showTokenButton').textContent = showing ? 'SHOW' : 'HIDE';
 });
 [tokenInput, showControlsToggle, soundToggle, avoidSameToggle].forEach(el => el.addEventListener('change', save));
-$('shuffleButton').addEventListener('click', () => { for (let i = films.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [films[i], films[j]] = [films[j], films[i]]; } save(); });
-$('clearButton').addEventListener('click', () => { if (!films.length || confirm('Remove every film from NOTFLICKS?')) { films = []; save(); } });
+$('shuffleButton').addEventListener('click', () => {
+  for (let i = films.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [films[i], films[j]] = [films[j], films[i]];
+  }
+  save();
+});
+$('clearButton').addEventListener('click', () => {
+  if (!films.length || confirm('Remove every film from NOTFLICKS?')) { films = []; save(); }
+});
 $('addManualButton').addEventListener('click', () => manualDialog.showModal());
 $('manualForm').addEventListener('submit', (event) => {
   if (event.submitter?.value === 'cancel') return;
   event.preventDefault();
   const title = $('manualTitle').value.trim();
   if (!title) return;
-  films.push({ id: uid(), title, year: $('manualYear').value.trim(), poster: $('manualPoster').value.trim(), backdrop: $('manualBackdrop').value.trim(), overview: $('manualOverview').value.trim(), rating: '' });
-  $('manualForm').reset(); manualDialog.close(); save();
+  films.push({
+    id: uid(), title,
+    year: $('manualYear').value.trim(),
+    poster: $('manualPoster').value.trim(),
+    backdrop: $('manualBackdrop').value.trim(),
+    overview: $('manualOverview').value.trim(), rating: ''
+  });
+  $('manualForm').reset();
+  manualDialog.close();
+  save();
 });
 render();
