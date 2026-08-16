@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#07121f" />
+  <title>NOTFLICKS — Production Setup</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="setup-page">
+  <main class="setup-shell">
+    <header class="setup-header">
+      <div>
+        <img class="brand-logo" src="assets/notflicks-logo.svg" alt="NOTFLICKS" />
+        <div class="setup-kicker">PRODUCTION SETUP</div>
+      </div>
+      <div class="setup-actions">
+        <a class="button secondary" href="index.html?controls=1">Preview screen</a>
+        <a class="button primary" href="index.html">Launch screen</a>
+      </div>
+    </header>
+
+    <section class="panel intro-panel">
+      <div>
+        <h1>Build tonight's film list</h1>
+        <p>Paste one film per line. Include a year when needed, for example <strong>Alien (1979)</strong>.</p>
+      </div>
+      <div class="status-pills">
+        <span id="filmCountPill" class="status-pill">0 FILMS</span>
+        <span class="status-pill muted">SAVED LOCALLY</span>
+      </div>
+    </section>
+
+    <section class="setup-grid">
+      <div class="panel">
+        <h2>Add films</h2>
+        <label class="field-label" for="titleInput">Film titles</label>
+        <textarea id="titleInput" rows="12" placeholder="Jaws\nAlien (1979)\nHot Fuzz\nJurassic Park"></textarea>
+        <div class="button-row">
+          <button id="resolveButton" class="button primary">Find artwork</button>
+          <button id="addManualButton" class="button secondary">Add manually</button>
+        </div>
+        <div id="resolveStatus" class="inline-status" role="status"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Artwork lookup</h2>
+        <label class="field-label" for="tokenInput">TMDB API Read Access Token</label>
+        <div class="token-row">
+          <input id="tokenInput" type="password" autocomplete="off" placeholder="Paste your TMDB bearer token" />
+          <button id="showTokenButton" class="small-button" type="button">SHOW</button>
+        </div>
+        <p class="help-text">Stored only in this browser. It is never committed to GitHub.</p>
+        <div class="divider"></div>
+        <label class="switch-row">
+          <input id="showControlsToggle" type="checkbox" />
+          <span><strong>Show production controls</strong><small>Normally off when the screen is on camera.</small></span>
+        </label>
+        <label class="switch-row">
+          <input id="soundToggle" type="checkbox" checked />
+          <span><strong>Tick sound</strong><small>Plays whenever a new film crosses the selection point.</small></span>
+        </label>
+        <label class="switch-row">
+          <input id="avoidSameToggle" type="checkbox" checked />
+          <span><strong>Random must change film</strong><small>Prevents the random spin landing on the current film.</small></span>
+        </label>
+      </div>
+    </section>
+
+    <section class="panel library-panel">
+      <div class="library-heading">
+        <div><h2>Film library</h2><p>Use the arrows to reorder films. The first film is the initial selection.</p></div>
+        <div class="button-row compact">
+          <button id="shuffleButton" class="button secondary">Shuffle order</button>
+          <button id="clearButton" class="button danger">Clear all</button>
+        </div>
+      </div>
+      <div id="library" class="film-library"></div>
+      <div id="libraryEmpty" class="library-empty">No films have been added yet.</div>
+    </section>
+  </main>
+
+  <dialog id="manualDialog" class="manual-dialog">
+    <form method="dialog" id="manualForm">
+      <h2>Add film manually</h2>
+      <label>Title<input id="manualTitle" required /></label>
+      <label>Year<input id="manualYear" inputmode="numeric" /></label>
+      <label>Poster image URL<input id="manualPoster" type="url" /></label>
+      <label>Backdrop image URL<input id="manualBackdrop" type="url" /></label>
+      <label>Overview<textarea id="manualOverview" rows="4"></textarea></label>
+      <div class="button-row dialog-buttons">
+        <button class="button secondary" value="cancel">Cancel</button>
+        <button id="manualSave" class="button primary" value="default">Add film</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="setup.js" defer></script>
+</body>
+</html>
