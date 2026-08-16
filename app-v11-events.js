@@ -62,6 +62,7 @@ window.addEventListener('keydown',event=>{
   if(playActive){
     playbackActivity();
     if(event.key==='Escape'||event.key==='Backspace'||event.key==='BrowserBack'){event.preventDefault();closePlaySequence();return}
+    return;
   }
   if(screenView.hidden)return;
   if(event.key==='ArrowLeft'||event.key==='ArrowRight'){
