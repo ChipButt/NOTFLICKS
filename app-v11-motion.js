@@ -34,7 +34,8 @@ function v11Step(direction,transition=55){
 async function v11Coast(direction,token,originIndex,extraEnergy=0){
   const steps=v11RandomInt(20,28)+Math.min(10,Math.floor(extraEnergy/180));
   for(let i=0;i<steps;i++){
-    if(token!==v11SpinToken||locked||!films.length)return;
+    if(token!==v11SpinToken)return;
+    if(locked||!films.length){spinning=false;v11ArrowSpinning=false;return;}
     const p=i/Math.max(1,steps-1);
     const delay=44+Math.pow(p,2.35)*235;
     v11Step(direction,Math.min(150,Math.max(28,delay*.72)));
