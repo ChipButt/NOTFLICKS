@@ -1,0 +1,5 @@
+/* v19: staged pasted artwork confirmation */
+.art-view-status.paste-success{color:#a9f3cf;font-weight:850;background:rgba(54,190,125,.09);border:1px solid rgba(76,220,151,.22);border-radius:9px;padding:9px 11px}
+.art-candidate.pasted{border-color:rgba(76,220,151,.62);box-shadow:0 0 0 2px rgba(76,220,151,.09),0 10px 30px rgba(0,0,0,.2)}
+.art-candidate.pasted .art-candidate-frame{position:relative}.pasted-badge{position:absolute;z-index:3;top:14px;left:14px;background:#0c6f49;color:#d9ffed;border:1px solid rgba(173,255,217,.35);border-radius:999px;padding:4px 7px;font-size:9px;font-weight:950;letter-spacing:.09em;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.paste-confirmation{display:none;margin-top:7px;padding:8px 10px;border-radius:8px;background:rgba(54,190,125,.09);border:1px solid rgba(76,220,151,.22);color:#a9f3cf;font-size:11px;font-weight:800;line-height:1.35}.paste-confirmation.visible{display:block}
