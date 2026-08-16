@@ -48,7 +48,7 @@
         </div>
         <div class="panel">
           <h2>Automatic matching</h2>
-          <p class="help-text"><strong>No year supplied:</strong> matching film versions/remakes are compared using recent Wikipedia page views and the most popular version is chosen automatically.</p>
+          <p class="help-text"><strong>No year supplied:</strong> only genuine matching film articles are compared using recent Wikipedia page views, then the most popular version is chosen automatically.</p>
           <p class="help-text"><strong>Year supplied:</strong> that version takes priority. Use <strong>VERSIONS</strong> later to switch remake/adaptation.</p>
           <div class="artwork-explainer">
             <div><span class="artwork-shape portrait-shape"></span><strong>Poster / DVD cover</strong><small>Portrait artwork for selector and category rows.</small></div>
@@ -96,7 +96,7 @@
 
   <section id="screenView" class="screen-view" hidden>
     <main id="screenRoot" class="screen" aria-live="polite">
-      <header class="screen-header"><img class="brand-logo screen-logo" src="notflicks.png" alt="NOTFLICKS" /><div class="header-label">FILM SELECTOR</div><div id="lockBadge" class="lock-badge" hidden>LOCKED</div></header>
+      <header class="screen-header"><img class="brand-logo screen-logo" src="notflicks.png" alt="NOTFLICKS" /><div></div><div id="lockBadge" class="lock-badge" hidden>LOCKED</div></header>
       <section class="hero" aria-label="Current film"><div id="heroBackdrop" class="hero-backdrop"></div><div class="hero-vignette"></div><div class="hero-content"><div class="eyebrow">TONIGHT'S SELECTION</div><h1 id="heroTitle">NOTFLICKS</h1><div class="meta-line"><span id="heroYear"></span><span id="heroCategories"></span></div><p id="heroOverview"></p><div class="hero-actions"><button id="playNowButton" class="hero-button play" type="button"><span class="play-icon">▶</span> Play Now</button><button id="moreInfoButton" class="hero-button info" type="button"><span class="info-icon">ⓘ</span> More Info</button></div></div></section>
       <section class="browse-area"><section class="chooser category-section" aria-label="Selector"><div class="row-heading"><h2>Selector</h2></div><div id="carousel" class="carousel" tabindex="0"><div id="track" class="carousel-track"></div><div class="focus-frame" aria-hidden="true"></div></div><div class="film-readout"><div id="selectedTitle" class="selected-title"></div><div id="selectedYear" class="selected-year"></div></div></section><div id="categoryRows" class="category-rows" aria-label="Film categories"></div></section>
     </main>
@@ -130,7 +130,9 @@
 
   <script src="app-v8-core.js?v=8"></script>
   <script src="app-v9-art.js?v=9"></script>
+  <script src="app-v14-art.js?v=14"></script>
   <script src="app-v10-batch.js?v=13"></script>
+  <script src="app-v14-batch.js?v=14"></script>
   <script src="app-v9-ui.js?v=9"></script>
   <script src="app-v11-motion.js?v=11"></script>
   <script src="app-v10-playback.js?v=10"></script>
