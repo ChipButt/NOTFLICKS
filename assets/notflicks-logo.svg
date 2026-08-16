@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 155" role="img" aria-labelledby="title desc">
+  <title id="title">NOTFLICKS</title><desc id="desc">NOTFLICKS production logo</desc>
+  <defs>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#61b8ff"/><stop offset="1" stop-color="#187dd9"/></linearGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff4747"/><stop offset="1" stop-color="#c81925"/></linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity=".22"/></filter>
+  </defs>
+  <g filter="url(#soft)">
+    <path d="M20 129V26h25l44 62V26h25v103H89L45 67v62z" fill="url(#blue)"/>
+    <g fill="#fff">
+      <path d="M133 77c0-34 21-54 52-54s52 20 52 54-21 54-52 54-52-20-52-54zm27 0c0 21 8 32 25 32s25-11 25-32-8-32-25-32-25 11-25 32z"/>
+      <path d="M240 26h94v22h-34v81h-26V48h-34z"/>
+    </g>
+    <g fill="url(#red)">
+      <path d="M344 26h27v103h-27z"/>
+      <path d="M391 26h27v80h48v23h-75z"/>
+      <path d="M479 26h27v103h-27z"/>
+      <path d="M526 26h78v22h-51v20h45v21h-45v40h-27z"/>
+      <path d="M616 26h27v41l34-41h32l-41 47 44 56h-34l-35-47v47h-27z"/>
+      <path d="M716 45c-13 0-19 4-19 11 0 5 4 8 18 12 29 8 40 17 40 34 0 20-16 30-42 30-17 0-33-4-44-11l10-20c10 6 22 9 34 9 11 0 17-3 17-9 0-5-5-8-19-12-28-8-39-18-39-34 0-20 17-32 43-32 15 0 29 3 40 8l-9 20c-10-4-20-6-30-6z"/>
+    </g>
+  </g>
+</svg>
