@@ -1,0 +1,2 @@
+/* v18: robust clipboard paste controls */
+.paste-art-zone[contenteditable="true"]{min-height:48px;display:grid;place-items:center;user-select:text}.paste-art-zone[contenteditable="true"]:empty::before{content:'Click here, then paste a copied image (Ctrl/Cmd+V)';color:#b8ccdd}.paste-clipboard-button{margin-top:8px;width:100%;min-height:38px;border:1px solid rgba(89,205,255,.4);background:rgba(36,183,255,.12);color:#fff;border-radius:9px;padding:0 13px;font-weight:850;cursor:pointer}.paste-clipboard-button:hover{background:rgba(36,183,255,.2)}
