@@ -7,6 +7,8 @@
   }
   function prepareZones(){
     document.querySelectorAll('.paste-art-zone[data-paste-target]').forEach(zone=>{
+      if(zone.dataset.v18Ready==='1')return;
+      zone.dataset.v18Ready='1';
       zone.setAttribute('contenteditable','true');
       zone.setAttribute('role','textbox');
       zone.setAttribute('aria-label',`Paste ${zone.dataset.pasteTarget} image`);
@@ -135,8 +137,9 @@
     });
   }
 
-  /* The art dialog is built dynamically in older cached runs, so keep the
-     controls repaired if it is rebuilt. */
-  const observer=new MutationObserver(()=>prepareZones());
+  /* Repair controls only if a future render actually creates a new paste zone. */
+  const observer=new MutationObserver(mutations=>{
+    if(mutations.some(m=>[...m.addedNodes].some(node=>node.nodeType===1&&(node.matches?.('.paste-art-zone[data-paste-target]')||node.querySelector?.('.paste-art-zone[data-paste-target]')))))prepareZones();
+  });
   observer.observe(document.body,{childList:true,subtree:true});
 })();
