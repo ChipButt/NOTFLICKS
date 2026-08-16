@@ -5,9 +5,10 @@ A production-friendly mock streaming interface for choosing a film on camera.
 ## What it does
 
 - Separate production setup screen and clean on-camera screen.
-- Paste film titles and resolve posters/backdrops with TMDB.
+- Paste film titles and automatically look up poster/lead artwork from Wikipedia/Wikimedia with no API key or account.
 - Optional year matching, e.g. `Alien (1979)`.
-- Manual film entry and custom artwork URLs.
+- Google Images fallback button for films that need different artwork.
+- Manual film editing and custom poster/backdrop URLs.
 - Horizontal poster carousel with centre focus.
 - Slow scroll/arrow-key movement selects one film at a time.
 - Fast wheel, trackpad swipe or pointer swipe triggers a genuine random spin.
@@ -21,9 +22,11 @@ A production-friendly mock streaming interface for choosing a film on camera.
 
 Open `setup.html` and paste one film title per line.
 
-For automatic movie matching, add a TMDB **API Read Access Token** in the setup screen. The token is stored only in that browser's local storage; it is not included in this repository.
+Press **Find artwork**. NOTFLICKS searches Wikipedia for each film and uses its associated poster/lead image where available. No account, token or payment setup is required.
 
-Press **Find artwork**, check the resulting library, then press **Launch screen**.
+If a film has no suitable automatic artwork, press **GOOGLE** beside it to open a Google Images search, then press **EDIT** and paste the poster or backdrop image URL you want to use.
+
+Check the resulting library, then press **Launch screen**.
 
 ### On-screen keyboard controls
 
@@ -46,6 +49,4 @@ For GitHub Pages: repository **Settings → Pages → Deploy from a branch → m
 
 The app is branded **NOTFLICKS** and is intended to evoke a generic premium streaming UI rather than copy Netflix branding or assets.
 
-TMDB's API currently supports movie title search at `/3/search/movie`, and its image service can build image URLs from returned poster/backdrop paths. Review TMDB's current API terms and the rights required for artwork shown in your production before broadcast/commercial use.
-
-This product uses the TMDB API but is not endorsed or certified by TMDB.
+Artwork availability varies by title and source. Review the rights required for any poster or image you intend to show in a broadcast or commercial production.
