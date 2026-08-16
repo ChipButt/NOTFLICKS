@@ -3,8 +3,11 @@ const $ = (id) => document.getElementById(id);
 const films = (() => { try { return JSON.parse(localStorage.getItem(STORAGE.films)) || []; } catch { return []; } })();
 const settings = (() => { try { return { showControls:false, sound:true, avoidSame:true, ...(JSON.parse(localStorage.getItem(STORAGE.settings)) || {}) }; } catch { return { showControls:false, sound:true, avoidSame:true }; } })();
 const forceControls = new URLSearchParams(location.search).get('controls') === '1';
+const REPEATS = 11;
+const MIDDLE_REPEAT = Math.floor(REPEATS / 2);
 
-let index = Math.max(0, Math.min(films.length - 1, Number(localStorage.getItem(STORAGE.selected)) || 0));
+let filmIndex = Math.max(0, Math.min(films.length - 1, Number(localStorage.getItem(STORAGE.selected)) || 0));
+let virtualIndex = films.length ? MIDDLE_REPEAT * films.length + filmIndex : 0;
 let locked = false;
 let spinning = false;
 let dragging = false;
@@ -14,7 +17,6 @@ let wheelBurst = 0;
 let wheelDirection = 1;
 let wheelTimer = 0;
 let audioCtx;
-let renderToken = 0;
 
 const track = $('track');
 const carousel = $('carousel');
@@ -26,21 +28,35 @@ if (!films.length) {
 } else {
   controls.classList.toggle('visible', !!settings.showControls || forceControls);
   buildCarousel();
-  select(index, false, false);
+  updateTrack(0);
+  updateFilmDetails();
   preloadArtwork();
 }
 
 function escapeHtml(value='') {
-  return String(value).replace(/[&<>'"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#039;', '"':'&quot;' }[c]));
+  const node = document.createElement('span');
+  node.textContent = String(value);
+  return node.innerHTML;
 }
+function mod(value, length) { return ((value % length) + length) % length; }
 function buildCarousel() {
-  track.innerHTML = films.map((film, i) => `
-    <div class="poster-card" data-index="${i}" aria-label="${escapeHtml(film.title)}">
-      ${film.poster ? `<img src="${escapeHtml(film.poster)}" draggable="false" alt="${escapeHtml(film.title)} poster" />` : `<div class="poster-placeholder">${escapeHtml(film.title)}</div>`}
-    </div>`).join('');
+  const cards = [];
+  for (let repeat = 0; repeat < REPEATS; repeat++) {
+    films.forEach((film, i) => {
+      const vIndex = repeat * films.length + i;
+      cards.push(`<div class="poster-card" data-film-index="${i}" data-virtual-index="${vIndex}" aria-label="${escapeHtml(film.title)}">
+        ${film.poster ? `<img src="${escapeHtml(film.poster)}" draggable="false" alt="${escapeHtml(film.title)} poster" />` : `<div class="poster-placeholder">${escapeHtml(film.title)}</div>`}
+      </div>`);
+    });
+  }
+  track.innerHTML = cards.join('');
   track.addEventListener('click', e => {
     const card = e.target.closest('.poster-card');
-    if (card && !locked && !spinning) select(Number(card.dataset.index));
+    if (!card || locked || spinning) return;
+    virtualIndex = Number(card.dataset.virtualIndex);
+    filmIndex = Number(card.dataset.filmIndex);
+    commitSelection(280, true);
+    setTimeout(recenter, 300);
   });
 }
 function preloadArtwork() {
@@ -52,23 +68,27 @@ function cardMetrics() {
   const style = getComputedStyle(track);
   return { width: card.getBoundingClientRect().width, gap: parseFloat(style.columnGap || style.gap) || 18 };
 }
-function updateTrack(animate = true) {
+function updateTrack(duration = 0) {
   const { width, gap } = cardMetrics();
-  track.style.transition = animate ? 'transform 340ms cubic-bezier(.2,.8,.2,1)' : 'none';
-  track.style.transform = `translate3d(${-(index * (width + gap) + width / 2)}px,-50%,0)`;
-  track.querySelectorAll('.poster-card').forEach((el, i) => el.classList.toggle('is-selected', i === index));
+  track.style.transition = duration > 0 ? `transform ${duration}ms cubic-bezier(.2,.8,.2,1)` : 'none';
+  track.style.transform = `translate3d(${-(virtualIndex * (width + gap) + width / 2)}px,-50%,0)`;
+  track.querySelectorAll('.poster-card.is-selected').forEach(el => el.classList.remove('is-selected'));
+  track.querySelector(`.poster-card[data-virtual-index="${virtualIndex}"]`)?.classList.add('is-selected');
 }
-function select(next, animate = true, withTick = true) {
-  if (!films.length) return;
-  const old = index;
-  index = ((next % films.length) + films.length) % films.length;
-  localStorage.setItem(STORAGE.selected, index);
-  updateTrack(animate);
+function commitSelection(duration = 260, withTick = true) {
+  filmIndex = mod(virtualIndex, films.length);
+  localStorage.setItem(STORAGE.selected, filmIndex);
+  updateTrack(duration);
   updateFilmDetails();
-  if (withTick && old !== index) tick();
+  if (withTick) tick();
+}
+function recenter() {
+  if (!films.length || spinning) return;
+  virtualIndex = MIDDLE_REPEAT * films.length + filmIndex;
+  updateTrack(0);
 }
 function updateFilmDetails() {
-  const film = films[index];
+  const film = films[filmIndex];
   $('heroTitle').textContent = film.title || 'Untitled';
   $('heroYear').textContent = film.year || '';
   $('heroRating').textContent = film.rating ? `★ ${film.rating}` : '';
@@ -87,16 +107,19 @@ function tick() {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'square';
-    osc.frequency.value = 900 + Math.random() * 90;
-    gain.gain.setValueAtTime(.055, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .026);
+    osc.frequency.value = 860 + Math.random() * 120;
+    gain.gain.setValueAtTime(.05, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .028);
     osc.connect(gain).connect(audioCtx.destination);
     osc.start();
-    osc.stop(audioCtx.currentTime + .03);
+    osc.stop(audioCtx.currentTime + .032);
   } catch {}
 }
 function move(delta) {
-  if (!locked && !spinning && films.length) select(index + delta);
+  if (locked || spinning || !films.length) return;
+  virtualIndex += delta;
+  commitSelection(230, true);
+  setTimeout(recenter, 250);
 }
 function toggleLock() {
   locked = !locked;
@@ -104,32 +127,43 @@ function toggleLock() {
   $('lockButton').textContent = locked ? 'UNLOCK' : 'LOCK';
 }
 function randomTarget() {
-  if (films.length < 2) return index;
+  if (films.length < 2) return filmIndex;
   let target = Math.floor(Math.random() * films.length);
-  if (settings.avoidSame !== false) while (target === index) target = Math.floor(Math.random() * films.length);
+  if (settings.avoidSame !== false) while (target === filmIndex) target = Math.floor(Math.random() * films.length);
   return target;
 }
 async function spin() {
   if (locked || spinning || films.length < 2) return;
   spinning = true;
   $('spinBanner').hidden = false;
-  const token = ++renderToken;
+  virtualIndex = MIDDLE_REPEAT * films.length + filmIndex;
+  updateTrack(0);
+
   const target = randomTarget();
   const cycles = 2 + Math.floor(Math.random() * 3);
-  const forwardSteps = cycles * films.length + ((target - index + films.length) % films.length || films.length);
-  for (let step = 0; step < forwardSteps && token === renderToken; step++) {
-    select(index + 1, false, true);
-    const t = step / Math.max(1, forwardSteps - 1);
-    const delay = 34 + Math.pow(t, 3.2) * 265;
+  const deltaToTarget = mod(target - filmIndex, films.length) || films.length;
+  const totalSteps = cycles * films.length + deltaToTarget;
+
+  for (let step = 0; step < totalSteps; step++) {
+    const progress = step / Math.max(1, totalSteps - 1);
+    const delay = 34 + Math.pow(progress, 3.15) * 280;
+    const transition = Math.max(24, Math.min(125, delay * .72));
+    virtualIndex += 1;
+    filmIndex = mod(virtualIndex, films.length);
+    localStorage.setItem(STORAGE.selected, filmIndex);
+    updateTrack(transition);
+    updateFilmDetails();
+    tick();
     await sleep(delay);
   }
-  if (token === renderToken) {
-    select(target, true, false);
-    await sleep(330);
-    tick();
-  }
-  $('spinBanner').hidden = true;
+
+  filmIndex = target;
+  localStorage.setItem(STORAGE.selected, filmIndex);
+  await sleep(90);
+  tick();
   spinning = false;
+  $('spinBanner').hidden = true;
+  recenter();
 }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
@@ -178,6 +212,6 @@ $('nextButton')?.addEventListener('click', () => move(1));
 $('spinButton')?.addEventListener('click', spin);
 $('lockButton')?.addEventListener('click', toggleLock);
 $('fullscreenButton')?.addEventListener('click', () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.());
-window.addEventListener('resize', () => films.length && updateTrack(false));
+window.addEventListener('resize', () => films.length && updateTrack(0));
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
