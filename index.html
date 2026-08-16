@@ -5,29 +5,68 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#020713" />
   <title>NOTFLICKS</title>
-  <link rel="stylesheet" href="v6.css?v=6" />
+  <link rel="stylesheet" href="v7.css?v=7" />
 </head>
 <body>
   <section id="setupView" class="setup-view">
     <main class="setup-shell">
       <header class="setup-header">
-        <div class="setup-brand"><img class="brand-logo setup-logo" src="notflicks.png" alt="NOTFLICKS" /><div class="setup-kicker">PRODUCTION SETUP</div></div>
-        <div class="setup-actions"><button id="previewButton" class="button secondary" type="button">Preview screen</button><button id="launchButton" class="button primary" type="button">Launch screen</button></div>
+        <div class="setup-brand">
+          <img class="brand-logo setup-logo" src="notflicks.png" alt="NOTFLICKS" />
+          <div class="setup-kicker">PRODUCTION SETUP</div>
+        </div>
+        <div class="setup-actions">
+          <button id="previewButton" class="button secondary" type="button">Preview screen</button>
+          <button id="launchButton" class="button primary" type="button">Launch screen</button>
+        </div>
       </header>
-      <section class="panel intro-panel"><div><h1>Build tonight's film list</h1><p>Paste one film per line. Include a year where useful, for example <strong>Alien (1979)</strong>.</p></div><div class="status-pills"><span id="filmCountPill" class="status-pill">0 FILMS</span><span class="status-pill muted">SAVED IN THIS BROWSER</span></div></section>
-      <section class="setup-grid">
-        <div class="panel"><h2>Add films</h2><label class="field-label" for="titleInput">Film titles</label><textarea id="titleInput" rows="11" placeholder="Jaws\nAlien (1979)\nHot Fuzz\nJurassic Park"></textarea><div class="button-row"><button id="resolveButton" class="button primary" type="button">Find artwork</button><button id="addManualButton" class="button secondary" type="button">Add manually</button></div><div id="resolveStatus" class="inline-status" role="status"></div></div>
-        <div class="panel"><h2>Screen behaviour</h2><p class="help-text"><strong>No API key is required.</strong> NOTFLICKS searches Wikipedia for film artwork. Any result can be edited manually.</p><div class="divider"></div><label class="switch-row"><input id="soundToggle" type="checkbox" checked /><span><strong>Tick sound</strong><small>Tick each time another film passes the selector.</small></span></label><label class="switch-row"><input id="avoidSameToggle" type="checkbox" checked /><span><strong>Random must change film</strong><small>Prevents a spin returning the currently selected film.</small></span></label><div class="divider"></div><p class="help-text"><strong>Preview screen</strong> keeps production controls visible.</p><p class="help-text"><strong>Launch screen</strong> hides production controls and requests fullscreen.</p></div>
+      <section class="panel intro-panel">
+        <div><h1>Build tonight's film list</h1><p>Paste one film per line. Include a year where useful, for example <strong>Alien (1979)</strong>.</p></div>
+        <div class="status-pills"><span id="filmCountPill" class="status-pill">0 FILMS</span><span class="status-pill muted">SAVED IN THIS BROWSER</span></div>
       </section>
-      <section class="panel library-panel"><div class="library-heading"><div><h2>Film library</h2><p>These exact films are used immediately by Preview and Launch.</p></div><div class="button-row compact"><button id="shuffleButton" class="button secondary" type="button">Shuffle order</button><button id="clearButton" class="button danger" type="button">Clear all</button></div></div><div id="library" class="film-library"></div><div id="libraryEmpty" class="library-empty">No films have been added yet.</div></section>
+      <section class="setup-grid">
+        <div class="panel">
+          <h2>Add films</h2><label class="field-label" for="titleInput">Film titles</label>
+          <textarea id="titleInput" rows="11" placeholder="Jaws\nAlien (1979)\nHot Fuzz\nJurassic Park"></textarea>
+          <div class="button-row"><button id="resolveButton" class="button primary" type="button">Find artwork</button><button id="addManualButton" class="button secondary" type="button">Add manually</button></div>
+          <div id="resolveStatus" class="inline-status" role="status"></div>
+        </div>
+        <div class="panel">
+          <h2>Screen behaviour</h2>
+          <p class="help-text"><strong>No API key is required.</strong> NOTFLICKS searches Wikipedia for film artwork and automatically sorts films into genre-style categories.</p>
+          <div class="divider"></div>
+          <label class="switch-row"><input id="soundToggle" type="checkbox" checked /><span><strong>Tick sound</strong><small>Tick each time another film passes the selector.</small></span></label>
+          <label class="switch-row"><input id="avoidSameToggle" type="checkbox" checked /><span><strong>Random must change film</strong><small>Prevents a spin returning the currently selected film.</small></span></label>
+          <div class="divider"></div>
+          <p class="help-text"><strong>Preview screen</strong> keeps production controls visible.</p><p class="help-text"><strong>Launch screen</strong> hides production controls and requests fullscreen.</p>
+        </div>
+      </section>
+      <section class="panel library-panel">
+        <div class="library-heading"><div><h2>Film library</h2><p>Categories are inferred automatically. Edit any film to override them.</p></div><div class="button-row compact"><button id="shuffleButton" class="button secondary" type="button">Shuffle order</button><button id="clearButton" class="button danger" type="button">Clear all</button></div></div>
+        <div id="library" class="film-library"></div><div id="libraryEmpty" class="library-empty">No films have been added yet.</div>
+      </section>
     </main>
   </section>
+
   <section id="screenView" class="screen-view" hidden>
-    <main class="screen" aria-live="polite"><header class="screen-header"><img class="brand-logo screen-logo" src="notflicks.png" alt="NOTFLICKS" /><div class="header-label">FILM SELECTOR</div><div id="lockBadge" class="lock-badge" hidden>LOCKED</div></header><section class="hero" aria-label="Current film"><div id="heroBackdrop" class="hero-backdrop"></div><div class="hero-vignette"></div><div class="hero-content"><div class="eyebrow">TONIGHT'S SELECTION</div><h1 id="heroTitle">NOTFLICKS</h1><div class="meta-line"><span id="heroYear"></span></div><p id="heroOverview"></p></div></section><section class="chooser" aria-label="Film carousel"><div class="chooser-heading"><h2>Choose a film</h2><span>Scroll slowly to browse · flick hard to randomise</span></div><div id="carousel" class="carousel" tabindex="0"><div id="track" class="carousel-track"></div><div class="focus-frame" aria-hidden="true"></div></div><div class="film-readout"><div id="selectedTitle" class="selected-title"></div><div id="selectedYear" class="selected-year"></div></div></section><div id="spinBanner" class="spin-banner" hidden>RANDOMISING</div></main>
+    <main id="screenRoot" class="screen" aria-live="polite">
+      <header class="screen-header"><img class="brand-logo screen-logo" src="notflicks.png" alt="NOTFLICKS" /><div class="header-label">FILM SELECTOR</div><div id="lockBadge" class="lock-badge" hidden>LOCKED</div></header>
+      <section class="hero" aria-label="Current film">
+        <div id="heroBackdrop" class="hero-backdrop"></div><div class="hero-vignette"></div>
+        <div class="hero-content"><div class="eyebrow">TONIGHT'S SELECTION</div><h1 id="heroTitle">NOTFLICKS</h1><div class="meta-line"><span id="heroYear"></span><span id="heroCategories"></span></div><p id="heroOverview"></p><div class="hero-actions"><button id="playNowButton" class="hero-button play" type="button"><span class="play-icon">▶</span> Play Now</button><button id="moreInfoButton" class="hero-button info" type="button"><span class="info-icon">ⓘ</span> More Info</button></div></div>
+      </section>
+      <section class="browse-area">
+        <section class="chooser category-section" aria-label="Selector"><div class="row-heading"><h2>Selector</h2><span>Scroll slowly to browse · flick hard to randomise</span></div><div id="carousel" class="carousel" tabindex="0"><div id="track" class="carousel-track"></div><div class="focus-frame" aria-hidden="true"></div></div><div class="film-readout"><div id="selectedTitle" class="selected-title"></div><div id="selectedYear" class="selected-year"></div></div></section>
+        <div id="categoryRows" class="category-rows" aria-label="Film categories"></div>
+      </section>
+      <div id="spinBanner" class="spin-banner" hidden>RANDOMISING</div>
+    </main>
     <div id="cameraControls" class="camera-controls"><button id="backButton" type="button">SETUP</button><button id="prevButton" type="button">‹</button><button id="spinButton" class="spin-control" type="button">RANDOM</button><button id="nextButton" type="button">›</button><button id="lockButton" type="button">LOCK</button><button id="fullscreenButton" type="button">FULLSCREEN</button></div>
     <div id="screenEmpty" class="screen-empty" hidden><img class="brand-logo empty-logo" src="notflicks.png" alt="NOTFLICKS" /><h1>No films loaded</h1><button id="emptyBackButton" class="button primary" type="button">Return to setup</button></div>
+    <div id="playSequence" class="play-sequence" hidden aria-hidden="true"><div id="playArtwork" class="play-artwork"></div><div class="play-blackout"></div><img id="playLogo" class="play-logo" src="notflicks.png" alt="" /><button id="playBackButton" class="play-back" type="button" aria-label="Back">←</button></div>
   </section>
-  <dialog id="manualDialog" class="manual-dialog"><form method="dialog" id="manualForm"><h2 id="manualDialogTitle">Add film manually</h2><label>Title<input id="manualTitle" required /></label><label>Year<input id="manualYear" inputmode="numeric" /></label><label>Poster image URL<input id="manualPoster" type="url" /></label><label>Backdrop image URL<input id="manualBackdrop" type="url" /></label><label>Overview<textarea id="manualOverview" rows="4"></textarea></label><div class="button-row dialog-buttons"><button class="button secondary" value="cancel">Cancel</button><button id="manualSave" class="button primary" value="default">Add film</button></div></form></dialog>
-  <script src="app.js?v=6" defer></script>
+
+  <dialog id="manualDialog" class="manual-dialog"><form method="dialog" id="manualForm"><h2 id="manualDialogTitle">Add film manually</h2><label>Title<input id="manualTitle" required /></label><label>Year<input id="manualYear" inputmode="numeric" /></label><label>Categories <small>Comma separated, e.g. Comedy, Crime & Mystery</small><input id="manualCategories" /></label><label>Poster image URL<input id="manualPoster" type="url" /></label><label>Backdrop / banner image URL<input id="manualBackdrop" type="url" /></label><label>Overview<textarea id="manualOverview" rows="4"></textarea></label><div class="button-row dialog-buttons"><button class="button secondary" value="cancel">Cancel</button><button id="manualSave" class="button primary" value="default">Add film</button></div></form></dialog>
+  <script src="app.js?v=7" defer></script>
 </body>
 </html>
