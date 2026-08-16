@@ -1,0 +1,25 @@
+/* v21: simple full-logo ident — fade in, flash, fade to black */
+.play-logo-build{opacity:1}
+.play-logo-build .v10-logo-wordmark,
+.play-logo-build .v10-logo-horizon-mask,
+.play-logo-build .v10-logo-play{display:none!important}
+
+/* Keep the container stationary; only the exact supplied full-logo asset animates. */
+.play-sequence.logo-phase .play-logo-build{opacity:1;animation:none!important}
+.play-sequence.logo-phase .v10-logo-master{
+  opacity:0;
+  animation:v21FullLogoIdent 2.8s linear forwards!important;
+  will-change:opacity,filter,transform;
+}
+
+@keyframes v21FullLogoIdent{
+  0%{opacity:0;filter:brightness(.72);transform:scale(.985)}
+  30%{opacity:1;filter:brightness(1);transform:scale(1)}
+  48%{opacity:1;filter:brightness(1);transform:scale(1)}
+  52%{opacity:1;filter:brightness(4.8) drop-shadow(0 0 30px rgba(92,214,255,.95));transform:scale(1.018)}
+  56%{opacity:1;filter:brightness(1.25) drop-shadow(0 0 10px rgba(92,214,255,.35));transform:scale(1)}
+  66%{opacity:1;filter:brightness(1);transform:scale(1)}
+  100%{opacity:0;filter:brightness(.8);transform:scale(1)}
+}
+
+@media(max-width:760px){.play-logo-build{width:min(960px,94vw)}}
