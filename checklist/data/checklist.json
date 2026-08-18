@@ -1,0 +1,209 @@
+{
+  "version": 4,
+  "updatedAt": "2026-08-18T22:36:47.300Z",
+  "activeShowId": "show-658f5ad3-0721-4009-a11a-206b6efa7396",
+  "shows": [
+    {
+      "id": "s-07acb54b-0aea-46d6-ace4-1b2ff4e4747e",
+      "name": "My Show",
+      "items": [
+        {
+          "id": "i-bb4b18f0-e551-47b0-aa91-7383bdef3317",
+          "title": "Show Logo",
+          "type": "document",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "i-15ea1efa-9131-476c-8d77-bf592071e8ef",
+          "title": "Vertical Thumbnail — 4000 × 6000",
+          "type": "image",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "i-8e8b0230-1490-4178-a9b9-fd1565e47808",
+          "title": "Square Thumbnail — 6000 × 6000",
+          "type": "image",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "i-4248162b-74e0-4adb-be14-a13ef62cdfcd",
+          "title": "Featured Carousel Wide — 3840 × 1440",
+          "type": "image",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "i-8649fdd6-61cc-451f-b836-577e6e132462",
+          "title": "Featured Carousel Mobile — 3000 × 2625",
+          "type": "image",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "i-5309230d-f1ca-48ae-832b-9950b48009dd",
+          "title": "Show Font",
+          "type": "font",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "item-b7e5b822-0ef1-4569-91ae-875c7eedd56b",
+          "title": "Colour Scheme",
+          "type": "palette",
+          "done": false,
+          "notes": "",
+          "file": null,
+          "colours": [
+            "#8C7CF3",
+            "#A395FF",
+            "#F4F1FF",
+            "#241C43",
+            "#120F24"
+          ]
+        },
+        {
+          "id": "i-aa6564f5-5cb6-4047-bfcd-4e2b2a095049",
+          "title": "Intro Music",
+          "type": "audio",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "i-af14c414-c21c-46fe-af7a-08a2d28b14f1",
+          "title": "Outro Music",
+          "type": "audio",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "i-c6f8be73-bf36-4c42-bbdf-28406fde8159",
+          "title": "Intro Video",
+          "type": "video",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "i-3a369ae6-ab02-4b35-9284-188930114e7b",
+          "title": "Transitional Slide(s)",
+          "type": "document",
+          "done": false,
+          "notes": "",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": "show-658f5ad3-0721-4009-a11a-206b6efa7396",
+      "name": "Literally Delicious",
+      "items": [
+        {
+          "id": "item-5d2d7eaa-1f32-4cc3-a88b-6a5b776bc3b9",
+          "title": "Show Logo",
+          "type": "document",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "item-d54b26aa-9034-4ac5-a8e6-155bc8e76264",
+          "title": "Vertical Thumbnail — 4000 × 6000",
+          "type": "image",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "item-138e087b-f06e-4d24-9654-50ddc042260d",
+          "title": "Square Thumbnail — 6000 × 6000",
+          "type": "image",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "item-92912a76-e472-4152-94c1-343433278405",
+          "title": "Featured Carousel Wide — 3840 × 1440",
+          "type": "image",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "item-580557dd-fc6d-452c-b6df-9c1aab815d17",
+          "title": "Featured Carousel Mobile — 3000 × 2625",
+          "type": "image",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "item-71104bfa-3835-47b2-9aa0-69d8466941c2",
+          "title": "Show Font",
+          "type": "font",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "item-3c804153-6c8d-4d92-8eb3-fcdb86be238e",
+          "title": "Colour Scheme",
+          "type": "palette",
+          "done": false,
+          "notes": "",
+          "file": null,
+          "colours": [
+            "#8C7CF3",
+            "#A395FF",
+            "#F4F1FF",
+            "#241C43",
+            "#120F24"
+          ]
+        },
+        {
+          "id": "item-c8a69c94-084a-45e7-9669-c9bdd7e28b04",
+          "title": "Intro Music",
+          "type": "audio",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "item-140ea01a-e397-40dd-a304-32d39794a190",
+          "title": "Outro Music",
+          "type": "audio",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "item-b89736cb-c381-4baf-aa12-39ba3404318c",
+          "title": "Intro Video",
+          "type": "video",
+          "done": false,
+          "notes": "",
+          "file": null
+        },
+        {
+          "id": "item-17b9b8eb-907e-43f3-b0c6-4f0c386b2a95",
+          "title": "Transitional Slide(s)",
+          "type": "document",
+          "done": false,
+          "notes": "",
+          "file": null
+        }
+      ]
+    }
+  ]
+}
