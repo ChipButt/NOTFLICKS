@@ -11,6 +11,5 @@
     "ASSET_PREFIX": "checklist/assets",
     "MAX_ASSET_BYTES": "20971520",
     "ALLOWED_ORIGINS": "https://chipbutt.github.io"
-  },
-  "secrets": { "required": ["GITHUB_TOKEN", "EDIT_PIN"] }
+  }
 }
