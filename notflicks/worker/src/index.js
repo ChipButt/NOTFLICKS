@@ -55,6 +55,7 @@ async function health(env,corsHeaders){
     result.stateSha=current?.sha||'';
     result.filmCount=Array.isArray(current?.data?.films)?current.data.films.length:0;
     result.updatedAt=current?.data?.updatedAt||null;
+    result.stateBytes=current?.bytes||0;
   }catch(error){
     result.githubError=error?.message||String(error);
   }
@@ -80,14 +81,22 @@ function contentsUrl(env){
   return `https://api.github.com/repos/${encodeURIComponent(env.GITHUB_OWNER)}/${encodeURIComponent(env.GITHUB_REPO)}/contents/${path}`;
 }
 async function fetchCurrent(env){
-  const res=await fetch(`${contentsUrl(env)}?ref=${encodeURIComponent(env.GITHUB_BRANCH||'main')}`,{headers:githubHeaders(env)});
+  const url=`${contentsUrl(env)}?ref=${encodeURIComponent(env.GITHUB_BRANCH||'main')}`;
+  const res=await fetch(url,{headers:githubHeaders(env)});
   if(res.status===404)return null;
   if(!res.ok)throw new Error(`GitHub read failed (${res.status}).`);
   const payload=await res.json();
-  const text=base64ToUtf8(payload.content||'');
+  let text='';
+  if(payload.content&&payload.encoding==='base64'){
+    text=base64ToUtf8(payload.content);
+  }else{
+    const raw=await fetch(url,{headers:githubHeaders(env,'application/vnd.github.raw+json')});
+    if(!raw.ok)throw new Error(`GitHub raw read failed (${raw.status}).`);
+    text=await raw.text();
+  }
   let data;
   try{data=JSON.parse(text)}catch{throw new Error('Shared films.json is not valid JSON.')}
-  return{sha:payload.sha||'',data};
+  return{sha:payload.sha||'',data,bytes:new TextEncoder().encode(text).length};
 }
 async function getState(env,corsHeaders){
   const current=await fetchCurrent(env);
