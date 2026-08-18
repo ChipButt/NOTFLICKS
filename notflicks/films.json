@@ -1,6 +1,6 @@
 {
   "schema": 2,
-  "updatedAt": "2026-08-18T19:36:07.201Z",
+  "updatedAt": "2026-08-18T22:35:13.749Z",
   "films": [
     {
       "id": "cd91b0d4-d7fd-405b-8584-64512b409864",
@@ -243,25 +243,6 @@
       "backdrop": "https://upload.wikimedia.org/wikipedia/en/a/a1/Jean-Dominique_Bauby.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "overview": "The Diving Bell and the Butterfly (original French title: Le Scaphandre et le Papillon) is a memoir by journalist Jean-Dominique Bauby. It describes his life before and after a massive stroke left him with locked-in syndrome.\nThe French edition of the book was published on March 7, 1997. It sold the first 25,000 copies on the day of publication, reaching 150,000 in a week. It went on to become a number one bestseller across Europe.",
       "categories": [
-        "Drama"
-      ],
-      "needsWebArtPoster": false,
-      "needsWebArtBanner": false,
-      "needsWebArt": false,
-      "needsWebArtReason": ""
-    },
-    {
-      "id": "ed59a7cd-86b6-4906-98a1-cb5f91f765c7",
-      "source": "wikipedia",
-      "wikipediaTitle": "The Assassination of Jesse James by the Coward Robert Ford",
-      "versionPageviews": 27542,
-      "title": "The Assassination of Jesse James by the Coward Robert Ford",
-      "year": "1964",
-      "poster": "https://upload.wikimedia.org/wikipedia/en/a/ab/Assassination_poster.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-      "backdrop": "https://upload.wikimedia.org/wikipedia/en/2/21/Aojj_winter.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-      "overview": "The Assassination of Jesse James by the Coward Robert Ford is a 2007 American epic revisionist Western film written and directed by Andrew Dominik. Based on Ron Hansen's 1983 novel of the same name, the film dramatizes the relationship between Jesse James and Robert Ford, focusing on the events that led up to the killing. It stars Brad Pitt as James and Casey Affleck as Ford, with Sam Shepard, Mary-Louise Parker, Paul Schneider, Jeremy Renner, Zooey Deschanel, and Sam Rockwell in supporting roles.\nPhotography started on August 29, 2005, and ended in December 2005. Filming took place near Calgary, Canmore, and Edmonton, Alberta, and Winnipeg, Manitoba.",
-      "categories": [
-        "Comedy",
         "Drama"
       ],
       "needsWebArtPoster": false,
