@@ -1,2 +1,2 @@
-/* Paste the deployed checklist Cloudflare Worker URL here. */
-window.SHOW_CHECKLIST_API_URL = "PASTE_YOUR_CHECKLIST_WORKER_URL_HERE";
+/* Shared checklist Cloudflare Worker endpoint. */
+window.SHOW_CHECKLIST_API_URL = "https://show-checklist-api.goldplushighdefinition.workers.dev";
