@@ -63,9 +63,10 @@ async function health(env,corsHeaders){
 }
 
 async function validPin(request,env){
-  const provided=request.headers.get('X-Edit-Pin')||'';
-  if(!provided||!env.EDIT_PIN)return false;
-  const [a,b]=await Promise.all([digest(provided),digest(env.EDIT_PIN)]);
+  const provided=String(request.headers.get('X-Edit-Pin')||'').trim();
+  const expected=String(env.EDIT_PIN||'').trim();
+  if(!provided||!expected)return false;
+  const [a,b]=await Promise.all([digest(provided),digest(expected)]);
   if(a.length!==b.length)return false;
   let diff=0;for(let i=0;i<a.length;i++)diff|=a[i]^b[i];return diff===0;
 }
