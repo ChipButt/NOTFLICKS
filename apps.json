@@ -10,8 +10,8 @@
   {
     "id": "show-checklist",
     "name": "Show Production Checklist",
-    "description": "Track each show's artwork, fonts, music, video, notes and production assets.",
-    "path": "./checklist/",
+    "description": "Track each show's artwork, colour scheme, fonts, music, video, notes and production assets.",
+    "path": "./checklist/?v=4",
     "icon": "✓",
     "accent": "#7b61ff"
   }
