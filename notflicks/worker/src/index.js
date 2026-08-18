@@ -5,11 +5,11 @@ export default {
     const origin=request.headers.get('Origin')||'';
     const cors=getCors(origin,env);
     if(request.method==='OPTIONS')return new Response(null,{status:cors.allowed?204:403,headers:cors.headers});
-    if(!cors.allowed)return json({error:'Origin not allowed.'},403,cors.headers);
+    if(!cors.allowed)return json({error:'Origin not allowed.',origin,allowedOrigins:String(env.ALLOWED_ORIGINS||'')},403,cors.headers);
 
     const url=new URL(request.url);
     try{
-      if(url.pathname==='/health'&&request.method==='GET')return json({ok:true,service:'notflicks-shared-api'},200,cors.headers);
+      if(url.pathname==='/health'&&request.method==='GET')return await health(env,cors.headers);
       if(url.pathname==='/state'&&request.method==='GET')return await getState(env,cors.headers);
       if(url.pathname==='/state'&&request.method==='PUT'){
         if(!await validPin(request,env))return json({error:'Invalid edit PIN.'},401,cors.headers);
@@ -37,6 +37,30 @@ function getCors(origin,env){
   return{allowed,headers};
 }
 
+async function health(env,corsHeaders){
+  const result={
+    ok:true,
+    service:'notflicks-shared-api',
+    githubTokenConfigured:!!env.GITHUB_TOKEN,
+    editPinConfigured:!!env.EDIT_PIN,
+    statePath:env.STATE_PATH||'films.json',
+    repo:`${env.GITHUB_OWNER||''}/${env.GITHUB_REPO||''}`,
+    branch:env.GITHUB_BRANCH||'main',
+    githubRead:false
+  };
+  try{
+    const current=await fetchCurrent(env);
+    result.githubRead=true;
+    result.stateExists=!!current;
+    result.stateSha=current?.sha||'';
+    result.filmCount=Array.isArray(current?.data?.films)?current.data.films.length:0;
+    result.updatedAt=current?.data?.updatedAt||null;
+  }catch(error){
+    result.githubError=error?.message||String(error);
+  }
+  return json(result,200,corsHeaders);
+}
+
 async function validPin(request,env){
   const provided=request.headers.get('X-Edit-Pin')||'';
   if(!provided||!env.EDIT_PIN)return false;
@@ -47,7 +71,9 @@ async function validPin(request,env){
 async function digest(value){return new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)))}
 
 function githubHeaders(env,accept='application/vnd.github+json'){
-  return{Accept:accept,'X-GitHub-Api-Version':'2022-11-28','User-Agent':'NOTFLICKS-Shared-Worker',Authorization:`Bearer ${env.GITHUB_TOKEN}`};
+  const headers={Accept:accept,'X-GitHub-Api-Version':'2022-11-28','User-Agent':'NOTFLICKS-Shared-Worker'};
+  if(env.GITHUB_TOKEN)headers.Authorization=`Bearer ${env.GITHUB_TOKEN}`;
+  return headers;
 }
 function contentsUrl(env){
   const path=String(env.STATE_PATH||'films.json').split('/').map(encodeURIComponent).join('/');
@@ -59,7 +85,9 @@ async function fetchCurrent(env){
   if(!res.ok)throw new Error(`GitHub read failed (${res.status}).`);
   const payload=await res.json();
   const text=base64ToUtf8(payload.content||'');
-  return{sha:payload.sha||'',data:JSON.parse(text)};
+  let data;
+  try{data=JSON.parse(text)}catch{throw new Error('Shared films.json is not valid JSON.')}
+  return{sha:payload.sha||'',data};
 }
 async function getState(env,corsHeaders){
   const current=await fetchCurrent(env);
