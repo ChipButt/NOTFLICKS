@@ -8,6 +8,8 @@ const NOTFLICKS_SHARED={
 let v13SharedInitComplete=false;
 let v13ApplyingShared=false;
 let v13PublishedLibrary=null;
+let v13LastSharedError='';
+let v13ConnectionChecked=false;
 const v13SelectedFilmIds=new Set();
 
 function v13ApiConfigured(){
@@ -22,24 +24,32 @@ function v13FormatPublishedTime(value){
 }
 function v13UpdateSharedStatus(message=''){
   const pill=$('sharedStatusPill'),detail=$('sharedLibraryStatus');if(!pill||!detail)return;
-  if(message)detail.textContent=message;
+  if(message){detail.textContent=message;if(/could not|failed|error|missing|rejected|not allowed|invalid/i.test(message))v13LastSharedError=message}
+  pill.classList.remove('ok','warning');
   if(!v13ApiConfigured()){
-    pill.textContent='SHARED API SETUP NEEDED';pill.classList.add('warning');pill.classList.remove('ok');
-    if(!message)detail.textContent='Cloudflare Worker URL has not been added yet. Local changes still work on this browser.';
+    pill.textContent='SHARED API SETUP NEEDED';pill.classList.add('warning');
+    if(!message)detail.textContent='Cloudflare Worker URL has not been added yet.';
     return;
   }
   if(v13IsDirty()){
-    pill.textContent='UNSAVED CHANGES';pill.classList.add('warning');pill.classList.remove('ok');
+    pill.textContent='UNSAVED CHANGES';pill.classList.add('warning');
     if(!message)detail.textContent='This browser has changes that have not been saved to the shared library yet.';
     return;
   }
-  if(v13PublishedLibrary?.updatedAt){
-    pill.textContent='SHARED';pill.classList.add('ok');pill.classList.remove('warning');
-    if(!message)detail.textContent=`Shared library saved ${v13FormatPublishedTime(v13PublishedLibrary.updatedAt)}.`;
-  }else{
-    pill.textContent='LOCAL ONLY';pill.classList.remove('ok','warning');
-    if(!message)detail.textContent='No shared library has been loaded yet.';
+  if(v13LastSharedError){
+    pill.textContent='SHARED ERROR';pill.classList.add('warning');
+    if(!message)detail.textContent=v13LastSharedError;
+    return;
   }
+  if(v13PublishedLibrary){
+    const count=Array.isArray(v13PublishedLibrary.films)?v13PublishedLibrary.films.length:0;
+    pill.textContent=count?'SHARED':'SHARED EMPTY';pill.classList.add('ok');
+    if(!message){const saved=v13PublishedLibrary.updatedAt?` Last saved ${v13FormatPublishedTime(v13PublishedLibrary.updatedAt)}.`:'';detail.textContent=`Connected to the shared library · ${count} film${count===1?'':'s'}.${saved}`}
+    return;
+  }
+  pill.textContent=v13ConnectionChecked?'NOT CONNECTED':'CONNECTING…';
+  if(v13ConnectionChecked)pill.classList.add('warning');
+  if(!message)detail.textContent=v13ConnectionChecked?'No shared library connection is active.':'Checking the shared library…';
 }
 
 function v13ConfigureAccessUi(){
@@ -98,16 +108,33 @@ async function v13FetchPublishedLibrary(){
     const res=await fetch(`films.json?_=${Date.now()}`,{cache:'no-store'});
     if(!res.ok)return null;
     const parsed=await res.json();const doc=Array.isArray(parsed)?{schema:1,updatedAt:null,films:parsed}:parsed;
-    if(!doc||!Array.isArray(doc.films))throw new Error('Shared library format is invalid.');
+    if(!doc||!Array.isArray(doc.films))throw new Error('Repository fallback is not valid NOTFLICKS data.');
     return{...doc,sha:'',films:doc.films.map(normaliseFilm)};
   }
-  const res=await fetch(v13ApiUrl('/state'),{cache:'no-store',headers:{Accept:'application/json'}});
-  if(res.status===404)return null;
-  if(!res.ok)throw new Error(`Shared API ${res.status}`);
-  const payload=await res.json();
-  const doc=payload?.data;
-  if(!doc||!Array.isArray(doc.films))throw new Error('Shared library format is invalid.');
-  return{...doc,sha:payload.sha||'',films:doc.films.map(normaliseFilm)};
+  try{
+    const res=await fetch(`${v13ApiUrl('/state')}?_=${Date.now()}`,{cache:'no-store',headers:{Accept:'application/json'}});
+    const payload=await res.json().catch(()=>null);
+    if(!res.ok)throw new Error(payload?.error||`Shared API returned HTTP ${res.status}.`);
+    const doc=payload?.data;
+    if(!doc||!Array.isArray(doc.films))throw new Error('Shared API returned an invalid library.');
+    v13ConnectionChecked=true;v13LastSharedError='';
+    return{...doc,sha:payload.sha||'',films:doc.films.map(normaliseFilm)};
+  }catch(error){
+    v13ConnectionChecked=true;
+    let reason=error?.message||'Shared API request failed.';
+    try{
+      const healthRes=await fetch(`${v13ApiUrl('/health')}?_=${Date.now()}`,{cache:'no-store',headers:{Accept:'application/json'}});
+      const health=await healthRes.json().catch(()=>null);
+      if(health){
+        if(!health.githubTokenConfigured)reason='Cloudflare Worker is live, but the GITHUB_TOKEN secret is missing.';
+        else if(!health.editPinConfigured)reason='Cloudflare Worker is live, but the EDIT_PIN secret is missing.';
+        else if(health.githubRead===false)reason=`Cloudflare Worker is live, but ${health.githubError||'it cannot read the GitHub library.'}`;
+        else if(health.githubRead===true)reason=`Cloudflare Worker and GitHub are reachable, but loading /state failed: ${reason}`;
+      }
+    }catch{}
+    v13LastSharedError=reason;
+    throw new Error(reason);
+  }
 }
 function v13ApplyPublished(doc){
   if(!doc)return;
@@ -124,7 +151,7 @@ function v13ApplyPublished(doc){
 async function v13LoadPublished(force=false){
   const detail=$('sharedLibraryStatus');if(detail)detail.textContent=v13ApiConfigured()?'Checking the shared library…':'Loading the repository fallback…';
   try{
-    const doc=await v13FetchPublishedLibrary();v13PublishedLibrary=doc;
+    const doc=await v13FetchPublishedLibrary();v13PublishedLibrary=doc;v13ConnectionChecked=true;v13LastSharedError='';
     if(!doc){v13UpdateSharedStatus('No published shared library exists yet.');return false}
     if(force&&v13IsDirty()&&films.length&&!confirm('Replace this browser’s unsaved changes with the latest shared library?')){v13UpdateSharedStatus();return false}
     if(force){v13ApplyPublished(doc);return true}
@@ -133,7 +160,7 @@ async function v13LoadPublished(force=false){
     else v13UpdateSharedStatus();
     return true;
   }catch(error){
-    console.warn('Shared library load failed',error);v13UpdateSharedStatus('Could not reach the shared library. The local copy is still available.');return false;
+    console.warn('Shared library load failed',error);v13LastSharedError=error?.message||'Could not reach the shared library.';v13UpdateSharedStatus(v13LastSharedError);return false;
   }
 }
 
