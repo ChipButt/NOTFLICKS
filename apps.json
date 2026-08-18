@@ -3,7 +3,7 @@
     "id": "notflicks",
     "name": "NOTFLICKS",
     "description": "Build and run the shared film-selection interface for production.",
-    "path": "./notflicks/",
+    "path": "./notflicks/?v=24",
     "image": "./notflicks/notflicks.png",
     "accent": "#247cff"
   },
