@@ -1,6 +1,6 @@
 /* v23: Cloudflare Worker-backed shared library + bulk film removal */
 const NOTFLICKS_SHARED={
-  apiBase:'PASTE_YOUR_NOTFLICKS_WORKER_URL_HERE',
+  apiBase:'https://notflicks-shared-api.goldplushighdefinition.workers.dev',
   dirtyKey:'notflicks.libraryDirty.v2',
   syncedKey:'notflicks.sharedSyncedAt.v2',
   pinKey:'notflicks.editPin.session.v1'
