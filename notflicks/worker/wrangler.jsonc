@@ -9,11 +9,5 @@
     "GITHUB_BRANCH": "main",
     "STATE_PATH": "notflicks/films.json",
     "ALLOWED_ORIGINS": "https://chipbutt.github.io"
-  },
-  "secrets": {
-    "required": [
-      "GITHUB_TOKEN",
-      "EDIT_PIN"
-    ]
   }
 }
