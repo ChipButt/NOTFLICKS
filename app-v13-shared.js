@@ -1,29 +1,19 @@
-/* v13: GitHub-backed shared library + bulk film removal */
+/* v23: Cloudflare Worker-backed shared library + bulk film removal */
 const NOTFLICKS_SHARED={
-  owner:'ChipButt',repo:'NOTFLICKS',branch:'main',path:'films.json',
-  tokenKey:'notflicks.githubToken.v1',dirtyKey:'notflicks.libraryDirty.v1',syncedKey:'notflicks.sharedSyncedAt.v1'
+  apiBase:'PASTE_YOUR_NOTFLICKS_WORKER_URL_HERE',
+  dirtyKey:'notflicks.libraryDirty.v2',
+  syncedKey:'notflicks.sharedSyncedAt.v2',
+  pinKey:'notflicks.editPin.session.v1'
 };
 let v13SharedInitComplete=false;
 let v13ApplyingShared=false;
 let v13PublishedLibrary=null;
 const v13SelectedFilmIds=new Set();
 
-function v13EncodeBase64Utf8(text){
-  const bytes=new TextEncoder().encode(text);let binary='';
-  for(let i=0;i<bytes.length;i+=0x8000)binary+=String.fromCharCode(...bytes.subarray(i,i+0x8000));
-  return btoa(binary);
+function v13ApiConfigured(){
+  return /^https:\/\//i.test(NOTFLICKS_SHARED.apiBase)&&!NOTFLICKS_SHARED.apiBase.includes('PASTE_YOUR_');
 }
-function v13DecodeBase64Utf8(base64){
-  const binary=atob(String(base64||'').replace(/\s/g,''));const bytes=new Uint8Array(binary.length);
-  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
-  return new TextDecoder().decode(bytes);
-}
-function v13Headers(token=''){
-  const headers={Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};
-  if(token)headers.Authorization=`Bearer ${token}`;
-  return headers;
-}
-function v13ContentsUrl(){return`https://api.github.com/repos/${NOTFLICKS_SHARED.owner}/${NOTFLICKS_SHARED.repo}/contents/${NOTFLICKS_SHARED.path}?ref=${encodeURIComponent(NOTFLICKS_SHARED.branch)}`}
+function v13ApiUrl(path){return `${NOTFLICKS_SHARED.apiBase.replace(/\/$/,'')}${path}`}
 function v13IsDirty(){return localStorage.getItem(NOTFLICKS_SHARED.dirtyKey)==='1'}
 function v13SetDirty(value){localStorage.setItem(NOTFLICKS_SHARED.dirtyKey,value?'1':'0');v13UpdateSharedStatus()}
 function v13FormatPublishedTime(value){
@@ -33,18 +23,38 @@ function v13FormatPublishedTime(value){
 function v13UpdateSharedStatus(message=''){
   const pill=$('sharedStatusPill'),detail=$('sharedLibraryStatus');if(!pill||!detail)return;
   if(message)detail.textContent=message;
+  if(!v13ApiConfigured()){
+    pill.textContent='SHARED API SETUP NEEDED';pill.classList.add('warning');pill.classList.remove('ok');
+    if(!message)detail.textContent='Cloudflare Worker URL has not been added yet. Local changes still work on this browser.';
+    return;
+  }
   if(v13IsDirty()){
-    pill.textContent='LOCAL CHANGES';pill.classList.add('warning');pill.classList.remove('ok');
-    if(!message)detail.textContent='This browser has unpublished changes. Publish when you want other devices to receive them.';
+    pill.textContent='UNSAVED CHANGES';pill.classList.add('warning');pill.classList.remove('ok');
+    if(!message)detail.textContent='This browser has changes that have not been saved to the shared library yet.';
     return;
   }
   if(v13PublishedLibrary?.updatedAt){
-    pill.textContent='PUBLISHED';pill.classList.add('ok');pill.classList.remove('warning');
-    if(!message)detail.textContent=`Shared library published ${v13FormatPublishedTime(v13PublishedLibrary.updatedAt)}.`;
+    pill.textContent='SHARED';pill.classList.add('ok');pill.classList.remove('warning');
+    if(!message)detail.textContent=`Shared library saved ${v13FormatPublishedTime(v13PublishedLibrary.updatedAt)}.`;
   }else{
     pill.textContent='LOCAL ONLY';pill.classList.remove('ok','warning');
-    if(!message)detail.textContent='No shared library has been published yet.';
+    if(!message)detail.textContent='No shared library has been loaded yet.';
   }
+}
+
+function v13ConfigureAccessUi(){
+  const access=$('githubAccessButton'),dialog=$('githubDialog'),input=$('githubToken');
+  if(access)access.textContent='Edit PIN';
+  if(!dialog||!input)return;
+  const heading=dialog.querySelector('h2');if(heading)heading.textContent='Shared edit access';
+  const firstP=dialog.querySelector('p');if(firstP)firstP.textContent='Enter the shared edit PIN to save changes for every device. The PIN is sent only to the Cloudflare Worker over HTTPS; no GitHub token is stored in this browser.';
+  const label=dialog.querySelector('label');if(label){
+    for(const node of [...label.childNodes])if(node.nodeType===Node.TEXT_NODE)node.textContent='Edit PIN';
+  }
+  input.placeholder='Shared edit PIN';input.autocomplete='off';
+  const help=dialog.querySelector('.github-help');if(help)help.textContent='The GitHub write token lives only in Cloudflare as an encrypted secret. App users never receive it.';
+  if($('githubTokenSave'))$('githubTokenSave').textContent='Use PIN';
+  if($('githubTokenForget'))$('githubTokenForget').textContent='Forget PIN';
 }
 
 const v13OriginalSave=save;
@@ -83,24 +93,21 @@ function v13RemoveSelected(){
   films=films.filter(f=>!v13SelectedFilmIds.has(f.id));v13SelectedFilmIds.clear();filmIndex=clampIndex(filmIndex);save();
 }
 
-async function v13FetchPublishedLibrary(token=''){
-  try{
-    const res=await fetch(`${v13ContentsUrl()}&_=${Date.now()}`,{headers:v13Headers(token),cache:'no-store'});
-    if(res.status===404)return null;
-    if(!res.ok)throw new Error(`GitHub ${res.status}`);
-    const payload=await res.json();
-    const parsed=JSON.parse(v13DecodeBase64Utf8(payload.content||''));
-    const doc=Array.isArray(parsed)?{schema:1,updatedAt:null,films:parsed}:parsed;
+async function v13FetchPublishedLibrary(){
+  if(!v13ApiConfigured()){
+    const res=await fetch(`films.json?_=${Date.now()}`,{cache:'no-store'});
+    if(!res.ok)return null;
+    const parsed=await res.json();const doc=Array.isArray(parsed)?{schema:1,updatedAt:null,films:parsed}:parsed;
     if(!doc||!Array.isArray(doc.films))throw new Error('Shared library format is invalid.');
-    return{...doc,sha:payload.sha||'',films:doc.films.map(normaliseFilm)};
-  }catch(error){
-    try{
-      const res=await fetch(`films.json?_=${Date.now()}`,{cache:'no-store'});if(!res.ok)throw error;
-      const parsed=await res.json();const doc=Array.isArray(parsed)?{schema:1,updatedAt:null,films:parsed}:parsed;
-      if(!doc||!Array.isArray(doc.films))throw error;
-      return{...doc,sha:'',films:doc.films.map(normaliseFilm)};
-    }catch{throw error}
+    return{...doc,sha:'',films:doc.films.map(normaliseFilm)};
   }
+  const res=await fetch(v13ApiUrl('/state'),{cache:'no-store',headers:{Accept:'application/json'}});
+  if(res.status===404)return null;
+  if(!res.ok)throw new Error(`Shared API ${res.status}`);
+  const payload=await res.json();
+  const doc=payload?.data;
+  if(!doc||!Array.isArray(doc.films))throw new Error('Shared library format is invalid.');
+  return{...doc,sha:payload.sha||'',films:doc.films.map(normaliseFilm)};
 }
 function v13ApplyPublished(doc){
   if(!doc)return;
@@ -115,54 +122,56 @@ function v13ApplyPublished(doc){
   v13UpdateSharedStatus();
 }
 async function v13LoadPublished(force=false){
-  const detail=$('sharedLibraryStatus');if(detail)detail.textContent='Checking GitHub for the published library…';
+  const detail=$('sharedLibraryStatus');if(detail)detail.textContent=v13ApiConfigured()?'Checking the shared library…':'Loading the repository fallback…';
   try{
     const doc=await v13FetchPublishedLibrary();v13PublishedLibrary=doc;
     if(!doc){v13UpdateSharedStatus('No published shared library exists yet.');return false}
-    if(force&&v13IsDirty()&&films.length&&!confirm('Replace this browser’s unpublished local changes with the published library?')){v13UpdateSharedStatus();return false}
+    if(force&&v13IsDirty()&&films.length&&!confirm('Replace this browser’s unsaved changes with the latest shared library?')){v13UpdateSharedStatus();return false}
     if(force){v13ApplyPublished(doc);return true}
     const synced=localStorage.getItem(NOTFLICKS_SHARED.syncedKey)||'';
     if(!films.length||(!v13IsDirty()&&doc.updatedAt&&doc.updatedAt!==synced))v13ApplyPublished(doc);
     else v13UpdateSharedStatus();
     return true;
   }catch(error){
-    console.warn('Shared library load failed',error);v13UpdateSharedStatus('Could not reach the shared library. The local copy is still available offline.');return false;
+    console.warn('Shared library load failed',error);v13UpdateSharedStatus('Could not reach the shared library. The local copy is still available.');return false;
   }
 }
 
 function v13OpenGithubDialog(){
-  const input=$('githubToken'),saved=localStorage.getItem(NOTFLICKS_SHARED.tokenKey)||'';
-  input.value=saved;input.placeholder=saved?'Token saved on this browser':'github_pat_…';$('githubDialog').showModal();setTimeout(()=>input.focus(),40);
+  const input=$('githubToken'),saved=sessionStorage.getItem(NOTFLICKS_SHARED.pinKey)||'';
+  input.value=saved;input.placeholder=saved?'PIN saved for this tab':'Shared edit PIN';$('githubDialog').showModal();setTimeout(()=>input.focus(),40);
 }
 function v13SaveGithubToken(){
-  const token=$('githubToken').value.trim();
-  if(token)localStorage.setItem(NOTFLICKS_SHARED.tokenKey,token);
-  $('githubDialog').close();v13UpdateSharedStatus(token?'GitHub publishing access saved on this browser.':'No token was entered.');
+  const pin=$('githubToken').value.trim();
+  if(pin)sessionStorage.setItem(NOTFLICKS_SHARED.pinKey,pin);
+  $('githubDialog').close();v13UpdateSharedStatus(pin?'Edit PIN saved for this browser tab.':'No PIN was entered.');
 }
 function v13ForgetGithubToken(){
-  localStorage.removeItem(NOTFLICKS_SHARED.tokenKey);$('githubToken').value='';v13UpdateSharedStatus('GitHub publishing access removed from this browser.');
+  sessionStorage.removeItem(NOTFLICKS_SHARED.pinKey);$('githubToken').value='';v13UpdateSharedStatus('Edit PIN removed from this browser tab.');
 }
-async function v13PublishLibrary(retry=true){
-  const token=localStorage.getItem(NOTFLICKS_SHARED.tokenKey)||'';
-  if(!token){v13OpenGithubDialog();v13UpdateSharedStatus('Add GitHub publishing access on this browser, then press Publish Library again.');return}
-  const button=$('publishLibraryButton');button.disabled=true;v13UpdateSharedStatus(`Publishing ${films.length} film${films.length===1?'':'s'} to GitHub…`);
+async function v13PublishLibrary(){
+  if(!v13ApiConfigured()){v13UpdateSharedStatus('Cloudflare Worker is not configured yet, so shared saving is disabled.');return}
+  const pin=sessionStorage.getItem(NOTFLICKS_SHARED.pinKey)||'';
+  if(!pin){v13OpenGithubDialog();v13UpdateSharedStatus('Enter the shared edit PIN, then press Save Shared Library again.');return}
+  const button=$('publishLibraryButton');button.disabled=true;v13UpdateSharedStatus(`Saving ${films.length} film${films.length===1?'':'s'} for every device…`);
   try{
-    const currentRes=await fetch(v13ContentsUrl(),{headers:v13Headers(token),cache:'no-store'});
-    let sha='';
-    if(currentRes.ok){const current=await currentRes.json();sha=current.sha||''}
-    else if(currentRes.status!==404)throw new Error(currentRes.status===401||currentRes.status===403?'GitHub access was rejected. Check that the token is restricted to ChipButt/NOTFLICKS and has Contents read/write permission.':`GitHub ${currentRes.status}`);
     const updatedAt=new Date().toISOString();
-    const doc={schema:1,updatedAt,films:films.map(({id,...film})=>({id,...film}))};
-    const body={message:`Publish NOTFLICKS library (${films.length} films)`,content:v13EncodeBase64Utf8(JSON.stringify(doc,null,2)),branch:NOTFLICKS_SHARED.branch};if(sha)body.sha=sha;
-    const put=await fetch(`https://api.github.com/repos/${NOTFLICKS_SHARED.owner}/${NOTFLICKS_SHARED.repo}/contents/${NOTFLICKS_SHARED.path}`,{method:'PUT',headers:{...v13Headers(token),'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(put.status===409&&retry){button.disabled=false;return v13PublishLibrary(false)}
-    if(!put.ok)throw new Error(put.status===401||put.status===403?'GitHub access was rejected. Check the token permissions.':`GitHub publish failed (${put.status}).`);
-    const result=await put.json();
-    v13PublishedLibrary={...doc,sha:result.content?.sha||'',films:doc.films.map(normaliseFilm)};
+    const doc={schema:2,updatedAt,films:films.map(({id,...film})=>({id,...film}))};
+    const res=await fetch(v13ApiUrl('/state'),{
+      method:'PUT',
+      headers:{Accept:'application/json','Content-Type':'application/json','X-Edit-Pin':pin},
+      body:JSON.stringify({data:doc,baseSha:v13PublishedLibrary?.sha||''})
+    });
+    if(res.status===401){sessionStorage.removeItem(NOTFLICKS_SHARED.pinKey);throw new Error('The edit PIN was rejected. Press Edit PIN and try again.')}
+    if(res.status===409){throw new Error('Someone else saved a newer shared library. Press Load published before saving again so their changes are not overwritten.')}
+    if(res.status===403)throw new Error('This website origin is not allowed to use the shared API. Check the Worker ALLOWED_ORIGINS setting.');
+    if(!res.ok){const payload=await res.json().catch(()=>null);throw new Error(payload?.error||`Shared save failed (${res.status}).`)}
+    const result=await res.json();
+    v13PublishedLibrary={...doc,sha:result.sha||'',films:doc.films.map(normaliseFilm)};
     localStorage.setItem(NOTFLICKS_SHARED.syncedKey,updatedAt);localStorage.setItem(NOTFLICKS_SHARED.dirtyKey,'0');
-    v13UpdateSharedStatus(`Published ${films.length} film${films.length===1?'':'s'} successfully. Other devices will load this library automatically.`);
+    v13UpdateSharedStatus(`Saved ${films.length} film${films.length===1?'':'s'} successfully. Other devices will load this library automatically.`);
   }catch(error){
-    console.warn('Publish failed',error);v13SetDirty(true);v13UpdateSharedStatus(error.message||'Could not publish the library.');
+    console.warn('Shared save failed',error);v13SetDirty(true);v13UpdateSharedStatus(error.message||'Could not save the shared library.');
   }finally{button.disabled=false}
 }
 
@@ -179,6 +188,12 @@ $('githubAccessButton')?.addEventListener('click',v13OpenGithubDialog);
 $('githubTokenSave')?.addEventListener('click',v13SaveGithubToken);
 $('githubTokenForget')?.addEventListener('click',v13ForgetGithubToken);
 $('githubTokenCancel')?.addEventListener('click',()=>$('githubDialog').close());
+
+v13ConfigureAccessUi();
+if($('publishLibraryButton'))$('publishLibraryButton').textContent='Save shared library';
+if($('loadPublishedButton'))$('loadPublishedButton').textContent='Reload shared';
+const sharedHeading=document.querySelector('.shared-panel h2');if(sharedHeading)sharedHeading.textContent='Shared library';
+const sharedCopy=document.querySelector('.shared-panel p');if(sharedCopy)sharedCopy.textContent='Save the current film list through the secure shared API. Every device loads the same films, selected versions, poster URLs and banner URLs; the GitHub write credential never reaches the browser.';
 
 (async()=>{
   renderLibrary();
