@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "notflicks-shared-api",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-18",
+  "vars": {
+    "GITHUB_OWNER": "ChipButt",
+    "GITHUB_REPO": "NOTFLICKS",
+    "GITHUB_BRANCH": "main",
+    "STATE_PATH": "notflicks/films.json",
+    "ALLOWED_ORIGINS": "https://chipbutt.github.io"
+  },
+  "secrets": {
+    "required": [
+      "GITHUB_TOKEN",
+      "EDIT_PIN"
+    ]
+  }
+}

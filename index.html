@@ -3,150 +3,30 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#020713" />
-  <title>NOTFLICKS</title>
-  <link rel="stylesheet" href="v8.css?v=8" />
-  <link rel="stylesheet" href="v9.css?v=9" />
-  <link rel="stylesheet" href="v10.css?v=15" />
-  <link rel="stylesheet" href="v13.css?v=13" />
-  <link rel="stylesheet" href="v16.css?v=16" />
-  <link rel="stylesheet" href="v18.css?v=18" />
-  <link rel="stylesheet" href="v19.css?v=19" />
-  <link rel="stylesheet" href="v20.css?v=20" />
-  <link rel="stylesheet" href="v21.css?v=21" />
+  <meta name="theme-color" content="#080a0f" />
+  <title>Planuf Apps</title>
+  <link rel="stylesheet" href="./styles.css?v=1" />
 </head>
 <body>
-  <section id="setupView" class="setup-view">
-    <main class="setup-shell">
-      <header class="setup-header">
-        <div class="setup-brand">
-          <img class="brand-logo setup-logo" src="notflicks.png" alt="NOTFLICKS" />
-          <div class="setup-kicker">PRODUCTION SETUP</div>
-        </div>
-        <div class="setup-actions">
-          <button id="previewButton" class="button secondary" type="button">Preview screen</button>
-          <button id="launchButton" class="button primary" type="button">Launch screen</button>
-        </div>
-      </header>
-
-      <section class="panel intro-panel">
-        <div>
-          <h1>Build tonight's film list</h1>
-          <p>Paste as many films as you want. Real line breaks, <strong>\n</strong>, <strong>/n</strong> and <strong>/n </strong> all work as separators. If no year is supplied, NOTFLICKS chooses the most popular matching film version before finding its artwork.</p>
-        </div>
-        <div class="status-pills">
-          <span id="filmCountPill" class="status-pill">0 FILMS</span>
-          <span id="sharedStatusPill" class="status-pill shared-status">CHECKING SHARED LIBRARY</span>
-        </div>
-      </section>
-
-      <section class="setup-grid">
-        <div class="panel">
-          <h2>Add multiple films</h2>
-          <label class="field-label" for="titleInput">Film titles</label>
-          <textarea id="titleInput" rows="11" placeholder="The Parent Trap/n Jaws/n Alien (1979)/n Hot Fuzz/n Jurassic Park"></textarea>
-          <div class="button-row">
-            <button id="resolveButton" class="button primary" type="button">Add films + find artwork</button>
-            <button id="addManualButton" class="button secondary" type="button">Add manually</button>
-          </div>
-          <div id="resolveStatus" class="inline-status" role="status"></div>
-        </div>
-        <div class="panel">
-          <h2>Automatic matching</h2>
-          <p class="help-text"><strong>No year supplied:</strong> only genuine matching film articles are compared using recent Wikipedia page views, then the most popular version is chosen automatically.</p>
-          <p class="help-text"><strong>Year supplied:</strong> that version takes priority. Use <strong>VERSIONS</strong> later to switch remake/adaptation.</p>
-          <div class="artwork-explainer">
-            <div><span class="artwork-shape portrait-shape"></span><strong>Poster / DVD cover</strong><small>Portrait artwork for selector and category rows.</small></div>
-            <div><span class="artwork-shape banner-shape"></span><strong>Banner / backdrop</strong><small>Wide artwork for the selected-film hero.</small></div>
-          </div>
-          <div class="divider"></div>
-          <label class="switch-row"><input id="soundToggle" type="checkbox" checked /><span><strong>Tick sound</strong><small>Tick each time another film passes the selector.</small></span></label>
-          <label class="switch-row"><input id="avoidSameToggle" type="checkbox" checked /><span><strong>Random must change film</strong><small>Prevents a spin returning the currently selected film.</small></span></label>
-        </div>
-      </section>
-
-      <section class="panel shared-panel">
-        <div>
-          <h2>Shared library</h2>
-          <p>Publish the current film list to this GitHub repo and every device will load the same films, selected versions, poster URLs and banner URLs. Local storage remains the offline working copy.</p>
-          <div id="sharedLibraryStatus" class="inline-status" role="status">Checking GitHub for the published library…</div>
-        </div>
-        <div class="button-row">
-          <button id="loadPublishedButton" class="button secondary" type="button">Load published</button>
-          <button id="publishLibraryButton" class="button primary" type="button">Publish library</button>
-          <button id="githubAccessButton" class="button secondary" type="button">GitHub access</button>
-        </div>
-      </section>
-
-      <section class="panel library-panel">
-        <div class="library-heading">
-          <div><h2>Film library</h2><p>Films without confidently resolved artwork are marked <strong>CHOOSE WEB ART</strong> and stay black on the launch screen until resolved. Use <strong>VIEW ART</strong> to choose or paste alternatives.</p></div>
-          <div class="button-row compact">
-            <button id="refreshAllButton" class="button secondary" type="button">Refind all artwork</button>
-            <button id="shuffleButton" class="button secondary" type="button">Shuffle order</button>
-            <button id="clearButton" class="button danger" type="button">Clear all</button>
-          </div>
-        </div>
-        <div class="bulk-toolbar">
-          <span id="selectedCount" class="bulk-count">0 selected</span>
-          <button id="selectAllButton" class="button secondary" type="button">Select all</button>
-          <button id="clearSelectionButton" class="button secondary" type="button" disabled>Clear selection</button>
-          <button id="removeSelectedButton" class="button danger" type="button" disabled>Remove selected</button>
-        </div>
-        <div id="library" class="film-library"></div>
-        <div id="libraryEmpty" class="library-empty">No films have been added yet.</div>
-      </section>
-    </main>
-  </section>
-
-  <section id="screenView" class="screen-view" hidden>
-    <main id="screenRoot" class="screen" aria-live="polite">
-      <header class="screen-header"><img class="brand-logo screen-logo" src="notflicks.png" alt="NOTFLICKS" /><div></div><div id="lockBadge" class="lock-badge" hidden>LOCKED</div></header>
-      <section class="hero" aria-label="Current film"><div id="heroBackdrop" class="hero-backdrop"></div><div class="hero-vignette"></div><div class="hero-content"><div class="eyebrow">TONIGHT'S SELECTION</div><h1 id="heroTitle">NOTFLICKS</h1><div class="meta-line"><span id="heroYear"></span><span id="heroCategories"></span></div><p id="heroOverview"></p><div class="hero-actions"><button id="playNowButton" class="hero-button play" type="button"><span class="play-icon">▶</span> Play Now</button><button id="moreInfoButton" class="hero-button info" type="button"><span class="info-icon">ⓘ</span> More Info</button></div></div></section>
-      <section class="browse-area"><section class="chooser category-section" aria-label="Selector"><div class="row-heading"><h2>Selector</h2></div><div id="carousel" class="carousel" tabindex="0"><div id="track" class="carousel-track"></div><div class="focus-frame" aria-hidden="true"></div></div><div class="film-readout"><div id="selectedTitle" class="selected-title"></div><div id="selectedYear" class="selected-year"></div></div></section><div id="categoryRows" class="category-rows" aria-label="Film categories"></div></section>
-    </main>
-
-    <div id="cameraControls" class="camera-controls"><button id="backButton" type="button">SETUP</button><button id="prevButton" type="button">‹</button><button id="spinButton" class="spin-control" type="button">RANDOM</button><button id="nextButton" type="button">›</button><button id="lockButton" type="button">LOCK</button><button id="fullscreenButton" type="button">FULLSCREEN</button></div>
-    <div id="screenEmpty" class="screen-empty" hidden><img class="brand-logo empty-logo" src="notflicks.png" alt="NOTFLICKS" /><h1>No films loaded</h1><button id="emptyBackButton" class="button primary" type="button">Return to setup</button></div>
-
-    <div id="playSequence" class="play-sequence" hidden aria-hidden="true">
-      <div id="playArtwork" class="play-artwork"></div><div class="play-blackout"></div>
-      <div class="play-logo-build" aria-hidden="true">
-        <img class="v10-logo-wordmark" src="NOTFLICKS_wordmark.png" alt="" />
-        <div class="v10-logo-horizon-mask"><img class="v10-logo-horizon" src="NOTFLICKS_horizon_light.png" alt="" /></div>
-        <img class="v10-logo-play" src="NOTFLICKS_play_icon.png" alt="" />
-        <img class="v10-logo-master" src="notflicks.png" alt="" />
+  <main class="shell">
+    <header class="hero">
+      <div class="brand-mark" aria-hidden="true"><span>P</span></div>
+      <div>
+        <p class="eyebrow">PLANUF</p>
+        <h1>Production Apps</h1>
+        <p class="subtitle">Choose a tool to open.</p>
       </div>
-      <div id="adLoading" class="ad-loading" hidden><div class="loading-ring" aria-hidden="true"></div><div class="ad-notice"><strong>Film will play after Ads</strong><span id="adCountdown" class="ad-countdown">08:00</span></div></div>
-      <button id="playBackButton" class="play-back" type="button" aria-label="Back">←</button>
-    </div>
-  </section>
-
-  <dialog id="manualDialog" class="manual-dialog"><form method="dialog" id="manualForm"><h2 id="manualDialogTitle">Add film manually</h2><label>Title<input id="manualTitle" required /></label><label>Year<input id="manualYear" inputmode="numeric" /></label><label>Categories <small>Comma separated, e.g. Comedy, Crime & Mystery</small><input id="manualCategories" /></label><label>Portrait poster / DVD image URL<input id="manualPoster" type="url" /></label><label>Wide banner / backdrop image URL<input id="manualBackdrop" type="url" /></label><label>Overview<textarea id="manualOverview" rows="4"></textarea></label><div class="button-row dialog-buttons"><button class="button secondary" value="cancel">Cancel</button><button id="manualSave" class="button primary" value="default">Add film</button></div></form></dialog>
-  <dialog id="versionDialog" class="version-dialog"><h2 id="versionDialogTitle">Choose film version</h2><p id="versionStatus" class="help-text">Finding versions…</p><div id="versionOptions" class="version-options"></div><div class="version-dialog-actions"><button id="versionCloseButton" class="button secondary" type="button">Close</button></div></dialog>
-
-  <dialog id="githubDialog" class="github-dialog">
-    <h2>GitHub publishing access</h2>
-    <p>To publish the shared library from this browser, use a fine-grained GitHub personal access token restricted to <strong>ChipButt/NOTFLICKS</strong> with <strong>Contents: read and write</strong>. The token is stored only in this browser and is never written to the repository.</p>
-    <label>Fine-grained GitHub token<input id="githubToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" /></label>
-    <p class="github-help"><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">Create a fine-grained token on GitHub</a>. Give it access only to the NOTFLICKS repository and set Repository permissions → Contents → Read and write.</p>
-    <div class="github-dialog-actions"><button id="githubTokenForget" class="button danger" type="button">Forget saved token</button><button id="githubTokenCancel" class="button secondary" type="button">Cancel</button><button id="githubTokenSave" class="button primary" type="button">Save access</button></div>
-  </dialog>
-
-  <script src="app-v8-core.js?v=8"></script>
-  <script src="app-v9-art.js?v=9"></script>
-  <script src="app-v14-art.js?v=14"></script>
-  <script src="app-v10-batch.js?v=13"></script>
-  <script src="app-v14-batch.js?v=14"></script>
-  <script src="app-v9-ui.js?v=9"></script>
-  <script src="app-v11-motion.js?v=11"></script>
-  <script src="app-v10-playback.js?v=10"></script>
-  <script src="app-v13-shared.js?v=13"></script>
-  <script src="app-v16-art-picker.js?v=20"></script>
-  <script src="app-v18-paste-fix.js?v=20"></script>
-  <script src="app-v19-art-staging.js?v=20"></script>
-  <script src="app-v17-art-button.js?v=20"></script>
-  <script src="app-v20-unresolved-art.js?v=20"></script>
-  <script src="app-v11-events.js?v=11"></script>
+    </header>
+    <section aria-labelledby="apps-heading">
+      <div class="section-heading"><h2 id="apps-heading">Apps</h2><span id="appCount" class="count-pill">Loading…</span></div>
+      <div id="appsGrid" class="apps-grid" aria-live="polite"></div>
+      <p id="loadError" class="load-error" hidden>Could not load the app list. Reload the page to try again.</p>
+    </section>
+    <footer><span>Planuf internal production tools</span></footer>
+  </main>
+  <template id="appCardTemplate">
+    <a class="app-card" href="#"><div class="art"><img class="app-image" alt="" hidden><div class="app-icon" aria-hidden="true"></div><div class="art-glow" aria-hidden="true"></div></div><div class="app-copy"><div class="app-heading-row"><h3 class="app-name"></h3><span class="open-arrow" aria-hidden="true">↗</span></div><p class="app-description"></p></div></a>
+  </template>
+  <script src="./app.js?v=1" defer></script>
 </body>
 </html>

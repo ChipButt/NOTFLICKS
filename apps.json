@@ -1,0 +1,18 @@
+[
+  {
+    "id": "notflicks",
+    "name": "NOTFLICKS",
+    "description": "Build and run the shared film-selection interface for production.",
+    "path": "./notflicks/",
+    "image": "./notflicks/notflicks.png",
+    "accent": "#247cff"
+  },
+  {
+    "id": "show-checklist",
+    "name": "Show Production Checklist",
+    "description": "Track each show's artwork, fonts, music, video, notes and production assets.",
+    "path": "./checklist/",
+    "icon": "✓",
+    "accent": "#7b61ff"
+  }
+]
