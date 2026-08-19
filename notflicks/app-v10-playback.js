@@ -24,21 +24,16 @@ function playNow(){
   seq.className='play-sequence';
   $('adLoading').hidden=true;
   playActive=true;
-
-  // The live interface itself is what moves toward camera. The blackout is
-  // layered over it and reaches full black before the 15% push completes.
   screenRoot.classList.remove('play-camera-push');
   void screenRoot.offsetWidth;
   screenRoot.classList.add('play-camera-push');
   void seq.offsetWidth;
   seq.classList.add('interface-phase');
   playbackActivity();
-
   later(()=>{
     if(!playActive)return;
     seq.classList.remove('interface-phase');
     seq.classList.add('black-phase');
-    // Reset behind a fully opaque black frame, so Back returns to the normal UI.
     screenRoot.classList.remove('play-camera-push');
     startLogoAdsCycle();
   },1650);
@@ -68,9 +63,9 @@ function closePlaySequence(){
     document.head.appendChild(style);
     const link=document.createElement('a');
     link.className='planuf-hub-link';
-    link.href='../';
-    link.textContent='← PLANUF APPS';
-    link.setAttribute('aria-label','Back to Planuf Apps');
+    link.href='../shows/movie-name-change/';
+    link.textContent='← MOVIE NAME CHANGE';
+    link.setAttribute('aria-label','Back to The Movie Name Change Game Show');
     document.body.appendChild(link);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});
