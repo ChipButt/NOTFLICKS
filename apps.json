@@ -1,34 +1,6 @@
 [
-  {
-    "id":"tin-files",
-    "name":"The Tin Files",
-    "description":"Conspiracies, cryptids and strange mysteries — production controls and show assets.",
-    "path":"./shows/tin-files/",
-    "brand":"tin",
-    "accent":"#b52c31"
-  },
-  {
-    "id":"movie-name-change",
-    "name":"The Movie Name Change Game Show",
-    "description":"Cosy movie-night chaos, NOTFLICKS and production tools.",
-    "path":"./shows/movie-name-change/",
-    "brand":"movie",
-    "accent":"#e94a62"
-  },
-  {
-    "id":"check-in",
-    "name":"The Check-In",
-    "description":"Show production assets and checklist.",
-    "path":"./shows/check-in/",
-    "brand":"checkin",
-    "accent":"#2b6b9c"
-  },
-  {
-    "id":"literally-delicious",
-    "name":"Literally Delicious",
-    "description":"Show production assets and checklist.",
-    "path":"./shows/literally-delicious/",
-    "brand":"literally",
-    "accent":"#e64d91"
-  }
+  {"id":"tin-files","name":"The Tin Files","description":"Conspiracies, cryptids and strange mysteries — production controls and show assets.","path":"./shows/tin-files/","image":"./tin%20files%20logo.png","accent":"#b52c31"},
+  {"id":"movie-name-change","name":"The Movie Name Change Game Show","description":"Cosy movie-night chaos, NOTFLICKS and production tools.","path":"./shows/movie-name-change/","image":"./mncgs%20planuf%20logo%20red%20bg.png","accent":"#e94a62"},
+  {"id":"check-in","name":"The Check-In","description":"Show production assets and checklist.","path":"./shows/check-in/","image":"./The%20Check%20In%20Logo%20new%20dark.png","accent":"#2b6b9c"},
+  {"id":"literally-delicious","name":"Literally Delicious","description":"Show production assets and checklist.","path":"./shows/literally-delicious/","image":"./Literally%20Delicious%20Show%20Logo.png","accent":"#e64d91"}
 ]
