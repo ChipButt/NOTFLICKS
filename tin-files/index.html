@@ -9,59 +9,13 @@
   <link rel="stylesheet" href="./styles.css?v=1">
 </head>
 <body>
-  <a class="hub-link" href="../">← PLANUF APPS</a>
+  <a class="hub-link" href="../shows/tin-files/">← THE TIN FILES</a>
 
   <main class="shell">
-    <header class="masthead">
-      <div class="case-mark">TF</div>
-      <div>
-        <div class="eyebrow">PLANUF · LIVE SHOW CONTROLS</div>
-        <h1>The Tin Files</h1>
-        <p>Audio cue controls</p>
-      </div>
-    </header>
-
-    <section class="control-panel knock-panel" aria-labelledby="clive-title">
-      <div class="panel-heading">
-        <div>
-          <span class="section-number">01</span>
-          <h2 id="clive-title">Clive’s Arrival</h2>
-        </div>
-        <span id="knockStatus" class="status-light">READY</span>
-      </div>
-
-      <p class="instruction">Choose the knock that should be heard at the door.</p>
-
-      <div class="knock-grid" id="knockGrid">
-        <button class="cue-button" type="button" data-cue="slow"><span>Slow</span><small>Knock</small></button>
-        <button class="cue-button" type="button" data-cue="regular"><span>Regular</span><small>Knock</small></button>
-        <button class="cue-button" type="button" data-cue="rapid"><span>Rapid</span><small>Knock</small></button>
-        <button class="cue-button" type="button" data-cue="playful"><span>Playful</span><small>Knock</small></button>
-        <button class="cue-button danger-cue" type="button" data-cue="panicked"><span>Panicked</span><small>Knock</small></button>
-      </div>
-    </section>
-
-    <section class="control-panel phone-panel" aria-labelledby="phone-title">
-      <div class="panel-heading">
-        <div>
-          <span class="section-number">02</span>
-          <h2 id="phone-title">Phone Call</h2>
-        </div>
-        <span id="phoneStatus" class="status-light">READY</span>
-      </div>
-
-      <p class="instruction">Start the rotary phone ringing. Press again when the phone is answered.</p>
-
-      <button id="phoneButton" class="phone-button" type="button" aria-pressed="false">
-        <span class="phone-icon" aria-hidden="true">☎</span>
-        <span id="phoneButtonText">Start Phone Call</span>
-      </button>
-    </section>
-
-    <section id="missingAudio" class="missing-audio" hidden>
-      <strong>Audio files still needed</strong>
-      <p id="missingAudioText"></p>
-    </section>
+    <header class="masthead"><div class="case-mark">TF</div><div><div class="eyebrow">PLANUF · LIVE SHOW CONTROLS</div><h1>The Tin Files</h1><p>Audio cue controls</p></div></header>
+    <section class="control-panel knock-panel" aria-labelledby="clive-title"><div class="panel-heading"><div><span class="section-number">01</span><h2 id="clive-title">Clive’s Arrival</h2></div><span id="knockStatus" class="status-light">READY</span></div><p class="instruction">Choose the knock that should be heard at the door.</p><div class="knock-grid" id="knockGrid"><button class="cue-button" type="button" data-cue="slow"><span>Slow</span><small>Knock</small></button><button class="cue-button" type="button" data-cue="regular"><span>Regular</span><small>Knock</small></button><button class="cue-button" type="button" data-cue="rapid"><span>Rapid</span><small>Knock</small></button><button class="cue-button" type="button" data-cue="playful"><span>Playful</span><small>Knock</small></button><button class="cue-button danger-cue" type="button" data-cue="panicked"><span>Panicked</span><small>Knock</small></button></div></section>
+    <section class="control-panel phone-panel" aria-labelledby="phone-title"><div class="panel-heading"><div><span class="section-number">02</span><h2 id="phone-title">Phone Call</h2></div><span id="phoneStatus" class="status-light">READY</span></div><p class="instruction">Start the rotary phone ringing. Press again when the phone is answered.</p><button id="phoneButton" class="phone-button" type="button" aria-pressed="false"><span class="phone-icon" aria-hidden="true">☎</span><span id="phoneButtonText">Start Phone Call</span></button></section>
+    <section id="missingAudio" class="missing-audio" hidden><strong>Audio files still needed</strong><p id="missingAudioText"></p></section>
   </main>
 
   <audio id="knock-slow" preload="auto" src="../knock-slow.mp3"></audio>
@@ -71,7 +25,6 @@
   <audio id="knock-playful" preload="auto" src="../knock-playful.mp3"></audio>
   <audio id="knock-panicked" preload="auto" src="../knock-panicked.mp3"></audio>
   <audio id="phone-ring" preload="auto" loop src="../phone-ring.mp3"></audio>
-
   <script src="./app.js?v=2"></script>
 </body>
 </html>
