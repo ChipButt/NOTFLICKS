@@ -1,1 +1,14 @@
-(()=>{'use strict';const grid=document.getElementById('appsGrid'),template=document.getElementById('appCardTemplate'),count=document.getElementById('appCount'),error=document.getElementById('loadError');init();async function init(){try{const response=await fetch(`./apps.json?v=${Date.now()}`,{cache:'no-store'});if(!response.ok)throw new Error(`HTTP ${response.status}`);const apps=await response.json();if(!Array.isArray(apps))throw new Error('Invalid app list');render(apps.filter(app=>app&&app.name&&app.path))}catch(err){console.error('Could not load Planuf app list',err);count.textContent='Unavailable';error.hidden=false}}function render(apps){grid.replaceChildren();count.textContent=`${apps.length} APP${apps.length===1?'':'S'}`;for(const app of apps){const node=template.content.cloneNode(true),card=node.querySelector('.app-card'),image=node.querySelector('.app-image'),icon=node.querySelector('.app-icon');card.href=app.path;card.style.setProperty('--accent',app.accent||'#4275ff');node.querySelector('.app-name').textContent=app.name;node.querySelector('.app-description').textContent=app.description||'';if(app.image){image.src=app.image;image.alt=`${app.name} logo`;image.hidden=false;icon.hidden=true}else icon.textContent=app.icon||'→';grid.appendChild(node)}}})();
+const grid=document.getElementById('showGrid');
+const count=document.getElementById('showCount');
+const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+(async()=>{
+  try{
+    const response=await fetch(`./apps.json?_=${Date.now()}`,{cache:'no-store'});
+    if(!response.ok)throw new Error('Could not load shows.');
+    const shows=await response.json();
+    count.textContent=`${shows.length} SHOW${shows.length===1?'':'S'}`;
+    grid.innerHTML=shows.map(show=>`<a class="show-card" href="${escapeHtml(show.path)}" style="--accent:${escapeHtml(show.accent||'#8c7cf3')}"><div class="show-art-wrap"><div class="show-art brand-${escapeHtml(show.brand)}" aria-label="${escapeHtml(show.name)} logo" role="img"></div></div><div class="show-copy"><div><h3>${escapeHtml(show.name)}</h3><p>${escapeHtml(show.description||'Open production tools')}</p></div><span class="open-bubble" aria-hidden="true">→</span></div></a>`).join('');
+  }catch(error){
+    grid.innerHTML=`<div class="load-error">${escapeHtml(error.message||'Could not load shows.')}</div>`;
+  }
+})();
