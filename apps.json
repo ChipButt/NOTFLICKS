@@ -19,7 +19,7 @@
     "id": "tin-files",
     "name": "The Tin Files",
     "description": "Live audio cue controls for Clive’s arrival and the rotary phone call.",
-    "path": "./tin-files/?v=1",
+    "path": "./tin-files/?v=2",
     "icon": "TF",
     "accent": "#b69a55"
   }
