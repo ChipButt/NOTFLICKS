@@ -2,7 +2,14 @@
   'use strict';
 
   const knockNames = ['slow', 'regular', 'rapid', 'playful', 'panicked'];
-  const knockPlayers = Object.fromEntries(knockNames.map(name => [name, document.getElementById(`knock-${name}`)]));
+  const knockPlayers = {
+    slow: [document.getElementById('knock-slow')],
+    regular: [document.getElementById('knock-regular-1'), document.getElementById('knock-regular-2')],
+    rapid: [document.getElementById('knock-rapid')],
+    playful: [document.getElementById('knock-playful')],
+    panicked: [document.getElementById('knock-panicked')]
+  };
+  const allKnockPlayers = Object.values(knockPlayers).flat();
   const knockButtons = Object.fromEntries([...document.querySelectorAll('[data-cue]')].map(button => [button.dataset.cue, button]));
   const knockStatus = document.getElementById('knockStatus');
   const phone = document.getElementById('phone-ring');
@@ -13,6 +20,8 @@
   const missingText = document.getElementById('missingAudioText');
 
   let activeKnock = null;
+  let activePlayer = null;
+  let regularIndex = 0;
   let phoneRinging = false;
 
   initialise();
@@ -25,10 +34,11 @@
   function bindControls() {
     for (const name of knockNames) {
       knockButtons[name].addEventListener('click', () => playKnock(name));
-      knockPlayers[name].addEventListener('ended', () => {
-        if (activeKnock === name) clearKnockState();
-      });
-      knockPlayers[name].addEventListener('error', () => markKnockUnavailable(name));
+      for (const player of knockPlayers[name]) {
+        player.addEventListener('ended', () => {
+          if (activePlayer === player) clearKnockState();
+        });
+      }
     }
 
     phoneButton.addEventListener('click', () => {
@@ -36,16 +46,26 @@
       else startPhoneCall();
     });
     phone.addEventListener('error', markPhoneUnavailable);
-
     window.addEventListener('pagehide', stopAllAudio);
   }
 
+  function choosePlayer(name) {
+    const players = knockPlayers[name] || [];
+    if (!players.length) return null;
+    if (name !== 'regular') return players[0];
+    const player = players[regularIndex % players.length];
+    regularIndex = (regularIndex + 1) % players.length;
+    return player;
+  }
+
   async function playKnock(name) {
-    const player = knockPlayers[name];
-    if (!player || knockButtons[name].disabled) return;
+    if (knockButtons[name]?.disabled) return;
+    const player = choosePlayer(name);
+    if (!player) return;
 
     stopKnocks();
     activeKnock = name;
+    activePlayer = player;
     knockButtons[name].classList.add('active');
     setStatus(knockStatus, `${name.toUpperCase()} KNOCK`, 'playing');
 
@@ -59,18 +79,19 @@
   }
 
   function stopKnocks() {
-    for (const name of knockNames) {
-      const player = knockPlayers[name];
+    for (const player of allKnockPlayers) {
       player.pause();
       try { player.currentTime = 0; } catch {}
-      knockButtons[name].classList.remove('active');
     }
+    for (const name of knockNames) knockButtons[name]?.classList.remove('active');
     activeKnock = null;
+    activePlayer = null;
   }
 
   function clearKnockState() {
     if (activeKnock) knockButtons[activeKnock]?.classList.remove('active');
     activeKnock = null;
+    activePlayer = null;
     setStatus(knockStatus, 'READY');
   }
 
@@ -108,22 +129,37 @@
 
   async function checkAudioFiles() {
     const files = [
-      ...knockNames.map(name => ({ key: name, label: `${title(name)} knock`, url: knockPlayers[name].getAttribute('src'), type: 'knock' })),
-      { key: 'phone', label: 'Rotary phone ring', url: phone.getAttribute('src'), type: 'phone' }
+      { key: 'slow', label: 'Slow knock', player: knockPlayers.slow[0], type: 'knock' },
+      { key: 'regular', label: 'Regular knock 1', player: knockPlayers.regular[0], type: 'knock' },
+      { key: 'regular', label: 'Regular knock 2', player: knockPlayers.regular[1], type: 'knock' },
+      { key: 'rapid', label: 'Rapid knock', player: knockPlayers.rapid[0], type: 'knock' },
+      { key: 'playful', label: 'Playful knock', player: knockPlayers.playful[0], type: 'knock' },
+      { key: 'panicked', label: 'Panicked knock', player: knockPlayers.panicked[0], type: 'knock' },
+      { key: 'phone', label: 'Rotary phone ring', player: phone, type: 'phone' }
     ];
 
-    const missing = [];
-    await Promise.all(files.map(async file => {
-      const exists = await fileExists(file.url);
-      if (exists) return;
-      missing.push(file.label);
-      if (file.type === 'phone') markPhoneUnavailable();
-      else markKnockUnavailable(file.key);
-    }));
+    const results = await Promise.all(files.map(async file => ({
+      ...file,
+      exists: await fileExists(file.player.getAttribute('src'))
+    })));
+
+    const missing = results.filter(file => !file.exists);
+
+    for (const name of knockNames) {
+      const group = results.filter(file => file.type === 'knock' && file.key === name);
+      const available = group.some(file => file.exists);
+      knockButtons[name].disabled = !available;
+      if (!available) knockButtons[name].title = 'Audio file has not been uploaded yet';
+    }
+
+    const phoneResult = results.find(file => file.type === 'phone');
+    if (!phoneResult?.exists) markPhoneUnavailable();
+
+    if (knockNames.every(name => knockButtons[name].disabled)) setStatus(knockStatus, 'AUDIO NEEDED', 'error');
 
     if (missing.length) {
       missingBox.hidden = false;
-      missingText.textContent = `${missing.join(', ')} ${missing.length === 1 ? 'has' : 'have'} not been uploaded to the Tin Files audio folder yet.`;
+      missingText.textContent = `${missing.map(file => file.label).join(', ')} ${missing.length === 1 ? 'has' : 'have'} not been uploaded to the Tin Files audio folder yet.`;
     } else {
       missingBox.hidden = true;
     }
@@ -138,15 +174,6 @@
     }
   }
 
-  function markKnockUnavailable(name) {
-    const button = knockButtons[name];
-    if (!button) return;
-    button.disabled = true;
-    button.title = 'Audio file has not been uploaded yet';
-    if (activeKnock === name) clearKnockState();
-    if (knockNames.every(key => knockButtons[key].disabled)) setStatus(knockStatus, 'AUDIO NEEDED', 'error');
-  }
-
   function markPhoneUnavailable() {
     answerPhone();
     phoneButton.disabled = true;
@@ -157,9 +184,5 @@
   function setStatus(element, text, kind = '') {
     element.textContent = text;
     element.className = `status-light${kind ? ` ${kind}` : ''}`;
-  }
-
-  function title(value) {
-    return value.charAt(0).toUpperCase() + value.slice(1);
   }
 })();
