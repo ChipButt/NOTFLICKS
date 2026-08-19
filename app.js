@@ -7,8 +7,6 @@ const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<
     if(!response.ok)throw new Error('Could not load shows.');
     const shows=await response.json();
     count.textContent=`${shows.length} SHOW${shows.length===1?'':'S'}`;
-    grid.innerHTML=shows.map(show=>`<a class="show-card" href="${escapeHtml(show.path)}" style="--accent:${escapeHtml(show.accent||'#8c7cf3')}"><div class="show-art-wrap"><div class="show-art brand-${escapeHtml(show.brand)}" aria-label="${escapeHtml(show.name)} logo" role="img"></div></div><div class="show-copy"><div><h3>${escapeHtml(show.name)}</h3><p>${escapeHtml(show.description||'Open production tools')}</p></div><span class="open-bubble" aria-hidden="true">→</span></div></a>`).join('');
-  }catch(error){
-    grid.innerHTML=`<div class="load-error">${escapeHtml(error.message||'Could not load shows.')}</div>`;
-  }
+    grid.innerHTML=shows.map(show=>`<a class="show-card" href="${escapeHtml(show.path)}" style="--accent:${escapeHtml(show.accent||'#8c7cf3')}"><div class="show-art-wrap"><img class="show-art" src="${escapeHtml(show.image)}" alt="${escapeHtml(show.name)} logo"></div><div class="show-copy"><div><h3>${escapeHtml(show.name)}</h3><p>${escapeHtml(show.description||'Open production tools')}</p></div><span class="open-bubble" aria-hidden="true">→</span></div></a>`).join('');
+  }catch(error){grid.innerHTML=`<div class="load-error">${escapeHtml(error.message||'Could not load shows.')}</div>`}
 })();
