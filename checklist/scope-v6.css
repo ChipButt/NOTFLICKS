@@ -1,0 +1,1 @@
+body.scoped-checklist .showbar{display:none}body.scoped-checklist:not(.scope-ready) #grid,body.scoped-checklist:not(.scope-ready) .progress{visibility:hidden}body.scoped-checklist .top{margin-bottom:18px}body.scoped-checklist .heading{margin-top:4px}body.scoped-checklist .heading h2{font-size:29px}@media(max-width:760px){body.scoped-checklist .top{padding-top:4px}}
