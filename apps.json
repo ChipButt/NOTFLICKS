@@ -1,26 +1,34 @@
 [
   {
-    "id":"notflicks",
-    "name":"NOTFLICKS",
-    "description":"Build and run the shared film-selection interface for production.",
-    "path":"./notflicks/?v=24",
-    "image":"./notflicks/notflicks.png",
-    "accent":"#247cff"
-  },
-  {
-    "id":"show-checklist",
-    "name":"Show Production Checklist",
-    "description":"Track each show's artwork, colour scheme, fonts, music, video, notes and production assets.",
-    "path":"./checklist/?v=5",
-    "icon":"✓",
-    "accent":"#7b61ff"
-  },
-  {
     "id":"tin-files",
     "name":"The Tin Files",
-    "description":"Live audio cue controls for Clive’s arrival and the rotary phone call.",
-    "path":"./tin-files/?v=3",
-    "icon":"TF",
-    "accent":"#b69a55"
+    "description":"Conspiracies, cryptids and strange mysteries — production controls and show assets.",
+    "path":"./shows/tin-files/",
+    "brand":"tin",
+    "accent":"#b52c31"
+  },
+  {
+    "id":"movie-name-change",
+    "name":"The Movie Name Change Game Show",
+    "description":"Cosy movie-night chaos, NOTFLICKS and production tools.",
+    "path":"./shows/movie-name-change/",
+    "brand":"movie",
+    "accent":"#e94a62"
+  },
+  {
+    "id":"check-in",
+    "name":"The Check-In",
+    "description":"Show production assets and checklist.",
+    "path":"./shows/check-in/",
+    "brand":"checkin",
+    "accent":"#2b6b9c"
+  },
+  {
+    "id":"literally-delicious",
+    "name":"Literally Delicious",
+    "description":"Show production assets and checklist.",
+    "path":"./shows/literally-delicious/",
+    "brand":"literally",
+    "accent":"#e64d91"
   }
 ]
