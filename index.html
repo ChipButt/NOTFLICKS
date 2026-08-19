@@ -6,24 +6,17 @@
   <meta name="theme-color" content="#f6f1ff">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <title>Planuf Shows</title>
-  <link rel="stylesheet" href="./styles.css?v=10">
+  <link rel="stylesheet" href="./styles.css?v=11">
 </head>
 <body>
   <div class="bubble bubble-a"></div><div class="bubble bubble-b"></div><div class="bubble bubble-c"></div>
   <main class="page-shell">
     <header class="hero">
-      <img class="planuf-logo" src="./assets/branding/planuf-logo.webp" alt="Planuf">
-      <div class="hero-copy">
-        <span class="mini-pill">PRODUCTION HQ</span>
-        <h1>What are we making today?</h1>
-        <p>Pick a show and jump into its production tools.</p>
-      </div>
+      <div class="logo-zone"><img class="planuf-logo" src="./Planuf%20Word%20Logo%2016_9.png" alt="Planuf" onerror="document.body.classList.add('missing-planuf-logo');this.hidden=true"><div class="planuf-word-fallback">Planuf</div></div>
+      <div class="hero-copy"><span class="mini-pill">PRODUCTION HQ</span><h1>What are we making today?</h1><p>Pick a show and jump into its production tools.</p></div>
     </header>
-    <section class="shows-section" aria-labelledby="shows-title">
-      <div class="section-heading"><div><span class="squiggle">●</span><h2 id="shows-title">Your shows</h2></div><span class="show-count" id="showCount"></span></div>
-      <div id="showGrid" class="show-grid" aria-live="polite"></div>
-    </section>
+    <section class="shows-section" aria-labelledby="shows-title"><div class="section-heading"><div><span class="squiggle">●</span><h2 id="shows-title">Your shows</h2></div><span class="show-count" id="showCount"></span></div><div id="showGrid" class="show-grid" aria-live="polite"></div></section>
   </main>
-  <script src="./app.js?v=10"></script>
+  <script src="./app.js?v=11"></script>
 </body>
 </html>
