@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#16140f">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>The Tin Files — Audio Controls</title>
+  <link rel="stylesheet" href="./styles.css?v=1">
+</head>
+<body>
+  <a class="hub-link" href="../">← PLANUF APPS</a>
+
+  <main class="shell">
+    <header class="masthead">
+      <div class="case-mark">TF</div>
+      <div>
+        <div class="eyebrow">PLANUF · LIVE SHOW CONTROLS</div>
+        <h1>The Tin Files</h1>
+        <p>Audio cue controls</p>
+      </div>
+    </header>
+
+    <section class="control-panel knock-panel" aria-labelledby="clive-title">
+      <div class="panel-heading">
+        <div>
+          <span class="section-number">01</span>
+          <h2 id="clive-title">Clive’s Arrival</h2>
+        </div>
+        <span id="knockStatus" class="status-light">READY</span>
+      </div>
+
+      <p class="instruction">Choose the knock that should be heard at the door.</p>
+
+      <div class="knock-grid" id="knockGrid">
+        <button class="cue-button" type="button" data-cue="slow"><span>Slow</span><small>Knock</small></button>
+        <button class="cue-button" type="button" data-cue="regular"><span>Regular</span><small>Knock</small></button>
+        <button class="cue-button" type="button" data-cue="rapid"><span>Rapid</span><small>Knock</small></button>
+        <button class="cue-button" type="button" data-cue="playful"><span>Playful</span><small>Knock</small></button>
+        <button class="cue-button danger-cue" type="button" data-cue="panicked"><span>Panicked</span><small>Knock</small></button>
+      </div>
+    </section>
+
+    <section class="control-panel phone-panel" aria-labelledby="phone-title">
+      <div class="panel-heading">
+        <div>
+          <span class="section-number">02</span>
+          <h2 id="phone-title">Phone Call</h2>
+        </div>
+        <span id="phoneStatus" class="status-light">READY</span>
+      </div>
+
+      <p class="instruction">Start the rotary phone ringing. Press again when the phone is answered.</p>
+
+      <button id="phoneButton" class="phone-button" type="button" aria-pressed="false">
+        <span class="phone-icon" aria-hidden="true">☎</span>
+        <span id="phoneButtonText">Start Phone Call</span>
+      </button>
+    </section>
+
+    <section id="missingAudio" class="missing-audio" hidden>
+      <strong>Audio files still needed</strong>
+      <p id="missingAudioText"></p>
+    </section>
+  </main>
+
+  <audio id="knock-slow" preload="auto" src="./audio/knock-slow.mp3"></audio>
+  <audio id="knock-regular" preload="auto" src="./audio/knock-regular.mp3"></audio>
+  <audio id="knock-rapid" preload="auto" src="./audio/knock-rapid.mp3"></audio>
+  <audio id="knock-playful" preload="auto" src="./audio/knock-playful.mp3"></audio>
+  <audio id="knock-panicked" preload="auto" src="./audio/knock-panicked.mp3"></audio>
+  <audio id="phone-ring" preload="auto" loop src="./audio/phone-ring.mp3"></audio>
+
+  <script src="./app.js?v=1"></script>
+</body>
+</html>
