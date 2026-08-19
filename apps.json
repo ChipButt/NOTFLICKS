@@ -1,26 +1,26 @@
 [
   {
-    "id": "notflicks",
-    "name": "NOTFLICKS",
-    "description": "Build and run the shared film-selection interface for production.",
-    "path": "./notflicks/?v=24",
-    "image": "./notflicks/notflicks.png",
-    "accent": "#247cff"
+    "id":"notflicks",
+    "name":"NOTFLICKS",
+    "description":"Build and run the shared film-selection interface for production.",
+    "path":"./notflicks/?v=24",
+    "image":"./notflicks/notflicks.png",
+    "accent":"#247cff"
   },
   {
-    "id": "show-checklist",
-    "name": "Show Production Checklist",
-    "description": "Track each show's artwork, colour scheme, fonts, music, video, notes and production assets.",
-    "path": "./checklist/?v=5",
-    "icon": "✓",
-    "accent": "#7b61ff"
+    "id":"show-checklist",
+    "name":"Show Production Checklist",
+    "description":"Track each show's artwork, colour scheme, fonts, music, video, notes and production assets.",
+    "path":"./checklist/?v=5",
+    "icon":"✓",
+    "accent":"#7b61ff"
   },
   {
-    "id": "tin-files",
-    "name": "The Tin Files",
-    "description": "Live audio cue controls for Clive’s arrival and the rotary phone call.",
-    "path": "./tin-files/?v=2",
-    "icon": "TF",
-    "accent": "#b69a55"
+    "id":"tin-files",
+    "name":"The Tin Files",
+    "description":"Live audio cue controls for Clive’s arrival and the rotary phone call.",
+    "path":"./tin-files/?v=3",
+    "icon":"TF",
+    "accent":"#b69a55"
   }
 ]
