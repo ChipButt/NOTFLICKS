@@ -1,32 +1,29 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#080a0f" />
-  <title>Planuf Apps</title>
-  <link rel="stylesheet" href="./styles.css?v=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f6f1ff">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>Planuf Shows</title>
+  <link rel="stylesheet" href="./styles.css?v=10">
 </head>
 <body>
-  <main class="shell">
+  <div class="bubble bubble-a"></div><div class="bubble bubble-b"></div><div class="bubble bubble-c"></div>
+  <main class="page-shell">
     <header class="hero">
-      <div class="brand-mark" aria-hidden="true"><span>P</span></div>
-      <div>
-        <p class="eyebrow">PLANUF</p>
-        <h1>Production Apps</h1>
-        <p class="subtitle">Choose a tool to open.</p>
+      <img class="planuf-logo" src="./assets/branding/planuf-logo.webp" alt="Planuf">
+      <div class="hero-copy">
+        <span class="mini-pill">PRODUCTION HQ</span>
+        <h1>What are we making today?</h1>
+        <p>Pick a show and jump into its production tools.</p>
       </div>
     </header>
-    <section aria-labelledby="apps-heading">
-      <div class="section-heading"><h2 id="apps-heading">Apps</h2><span id="appCount" class="count-pill">Loading…</span></div>
-      <div id="appsGrid" class="apps-grid" aria-live="polite"></div>
-      <p id="loadError" class="load-error" hidden>Could not load the app list. Reload the page to try again.</p>
+    <section class="shows-section" aria-labelledby="shows-title">
+      <div class="section-heading"><div><span class="squiggle">●</span><h2 id="shows-title">Your shows</h2></div><span class="show-count" id="showCount"></span></div>
+      <div id="showGrid" class="show-grid" aria-live="polite"></div>
     </section>
-    <footer><span>Planuf internal production tools</span></footer>
   </main>
-  <template id="appCardTemplate">
-    <a class="app-card" href="#"><div class="art"><img class="app-image" alt="" hidden><div class="app-icon" aria-hidden="true"></div><div class="art-glow" aria-hidden="true"></div></div><div class="app-copy"><div class="app-heading-row"><h3 class="app-name"></h3><span class="open-arrow" aria-hidden="true">↗</span></div><p class="app-description"></p></div></a>
-  </template>
-  <script src="./app.js?v=1" defer></script>
+  <script src="./app.js?v=10"></script>
 </body>
 </html>
